@@ -1,0 +1,130 @@
+[
+    {
+        "name": "crypto_investment",
+        "patterns": [
+            "crypto",
+            "bitcoin",
+            "investment",
+            "mining",
+            "trust wallet",
+            "binance",
+            "guaranteed returns",
+            "profit",
+            "usdt",
+            "ethereum"
+        ],
+        "weight": 15,
+        "description": "Mentors or guides regarding cryptocurrency investments with promised high returns."
+    },
+    {
+        "name": "emergency_crisis",
+        "patterns": [
+            "hospital",
+            "doctor",
+            "surgery",
+            "stranded",
+            "ticket",
+            "passport",
+            "customs",
+            "arrested",
+            "jail",
+            "lawyer",
+            "accident"
+        ],
+        "weight": 20,
+        "description": "Sudden emergencies requiring immediate financial assistance."
+    },
+    {
+        "name": "love_bombing",
+        "patterns": [
+            "soulmate",
+            "destiny",
+            "fate",
+            "husband",
+            "wife",
+            "god sent",
+            "prince",
+            "princess",
+            "eternal love",
+            "marriage"
+        ],
+        "weight": 5,
+        "description": "Excessive compliments and declarations of love very early in the relationship."
+    },
+    {
+        "name": "requests_for_money",
+        "patterns": [
+            "western union",
+            "moneygram",
+            "gift card",
+            "steam work",
+            "amazon card",
+            "bank transfer",
+            "loan",
+            "borrow",
+            "help me",
+            "financial support"
+        ],
+        "weight": 25,
+        "description": "Direct or indirect requests for money, often via untraceable methods."
+    },
+    {
+        "name": "military_overseas",
+        "patterns": [
+            "peacekeeping",
+            "mission",
+            "deployed",
+            "base",
+            "general",
+            "sergeant",
+            "covert",
+            "classified",
+            "leave request"
+        ],
+        "weight": 10,
+        "description": "Claims to be in the military, often overseas or on a secret mission."
+    },
+    {
+        "name": "oil_rig_engineer",
+        "patterns": [
+            "oil rig",
+            "offshore",
+            "contract",
+            "machinery",
+            "engineer",
+            "drilling",
+            "sea"
+        ],
+        "weight": 10,
+        "description": "Claims to work on an oil rig or offshore, limiting communication."
+    },
+    {
+        "name": "moving_off_platform",
+        "patterns": [
+            "whatsapp",
+            "hangouts",
+            "google chat",
+            "telegram",
+            "delete this app",
+            "hate this site"
+        ],
+        "weight": 5,
+        "description": "Attempts to move communication off the dating site quickly."
+    },
+    {
+        "name": "identity_theft",
+        "patterns": [
+            "ssn",
+            "social security",
+            "id card",
+            "driver's license",
+            "passport photo",
+            "account number",
+            "routing number",
+            "pins",
+            "verify your identity"
+        ],
+        "weight": 50,
+        "description": "High-risk request for personal identification documents or numbers."
+    }
+]

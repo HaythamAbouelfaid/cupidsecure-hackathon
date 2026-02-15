@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Analysis | CupidSecure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        .upload-area {
+            border: 2px dashed var(--surface-light);
+            border-radius: 1rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-heart-crack"></i> CupidSecure
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-btn-outline">Home</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-btn-highlight">Dashboard</a>
+        </nav>
+        <div class="header-cta">
+            <span class="dashboard-badge">Deep Scan</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="glass-panel card" style="max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2>File Upload Analysis</h2>
+                <p style="color: var(--text-secondary);">Upload WhatsApp, Telegram, or SMS export files for bulk
+                    analysis.</p>
+            </div>
+
+            <div class="upload-area" id="dropZone">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3>Drag & Drop Chat Export Files Here</h3>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">or click to browse (.txt, .json, .csv)</p>
+                <input type="file" id="fileInput" hidden>
+            </div>
+
+            <div style="margin-top: 2rem; display: none;" id="uploadProgress">
+                <p style="margin-bottom: 0.5rem;">Uploading and Processing...</p>
+                <div class="risk-meter-container">
+                    <div class="risk-meter-fill" style="width: 45%; background: var(--secondary-color);"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                <p><i class="fas fa-lock"></i> Files are processed in memory and never stored permanently.</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- AI Chatbot Section -->
+        <div class="chatbot-section" style="margin-top: 3rem;">
+            <h2>💬 Ask CupidSecure AI</h2>
+            <p>Upload a screenshot or ask questions about romance scams</p>
+
+            <!-- Image Upload -->
+            <div class="image-upload-section">
+                <h3>📸 Analyze Screenshot</h3>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+                    Upload Conversation Screenshot
+                </button>
+                <div id="imagePreview" style="display: none; margin-top: 1rem;">
+                    <img id="previewImg" style="max-width: 100%; border-radius: 10px;">
+                    <button class="analyze-btn" onclick="analyzeImage()" style="margin-top: 1rem;">🔍 Analyze
+                        Screenshot</button>
+                </div>
+                <div id="imageAnalysisResults" style="display: none;" class="analysis-results"></div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <h3>💭 Chat with AI</h3>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask about romance scams..."
+                        onkeypress="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const progress = document.getElementById('uploadProgress');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary-color)';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--surface-light)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--surface-light)';
+            // Mock upload logic
+            progress.style.display = 'block';
+            setTimeout(() => {
+                alert('This feature is coming soon! Please use the Dashboard for manual entry for now.');
+                progress.style.display = 'none';
+            }, 1000);
+        });
+
+        fileInput.addEventListener('change', () => {
+            progress.style.display = 'block';
+            setTimeout(() => {
+                alert('This feature is coming soon! Please use the Dashboard for manual entry for now.');
+                progress.style.display = 'none';
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security Center | CupidSecure Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .enterprise-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 400px;
+        }
+
+        .map-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .top-scam-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-heart-crack"></i> CupidSecure
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        </nav>
+        <div class="header-cta">
+            <span class="dashboard-badge">Enterprise Console</span>
+        </div>
+    </header>
+
+    <main class="enterprise-container">
+        <!-- Top Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Active Monitored Users</div>
+                <div class="stat-value" id="activeUsers">-</div>
+                <div style="color: #10b981; font-size: 0.85rem;"><i class="fas fa-arrow-up"></i> 12% vs last week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Risky Convos Flagged (7d)</div>
+                <div class="stat-value" id="riskyConvos">-</div>
+                <div style="color: #ef4444; font-size: 0.85rem;"><i class="fas fa-exclamation-triangle"></i> High
+                    Activity</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Estimated Loss Prevented</div>
+                <div class="stat-value" id="lossPrevented">-</div>
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">Based on intercepted requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Risk Score</div>
+                <div class="stat-value" id="avgRisk">-</div>
+                <div class="risk-meter-container" style="height: 6px; margin-top: 10px;">
+                    <div id="avgRiskBar"
+                        style="height: 100%; width: 0%; background: var(--warning); border-radius: 3px; transition: width 1s;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 style="margin-bottom: 1.5rem;">Weekly Threat Trend</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 style="margin-bottom: 1.5rem;">Scam Type Distribution</h3>
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Geo Map Data (Simplified as List for MVP, normally a map) -->
+        <div class="map-section">
+            <h3 style="margin-bottom: 1.5rem;">Geographic Hotspots (US)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Top regions with reported high-risk romance scam activity based on IP analysis and user reports.
+                    </p>
+                    <!-- Placeholder for Map Visual -->
+                    <div
+                        style="background: rgba(255,255,255,0.05); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                        <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-right: 1rem;"></i> [Interactive
+                        Map Module]
+                    </div>
+                </div>
+                <div id="geoList">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Fetch Data
+        async function loadEnterpriseData() {
+            try {
+                const response = await fetch('/api/intel-stats');
+                const data = await response.json();
+
+                // Update Key Stats
+                document.getElementById('activeUsers').textContent = data.active_monitored_users.toLocaleString();
+
+                const totalRisk7d = data.weekly_trend.data.reduce((a, b) => a + b, 0);
+                document.getElementById('riskyConvos').textContent = totalRisk7d;
+
+                document.getElementById('lossPrevented').textContent = '$' + data.total_prevented.toLocaleString();
+
+                document.getElementById('avgRisk').textContent = data.avg_risk_score;
+                document.getElementById('avgRiskBar').style.width = data.avg_risk_score + '%';
+                if (data.avg_risk_score > 70) document.getElementById('avgRiskBar').style.background = '#ef4444';
+
+                // Chart: Trend
+                new Chart(document.getElementById('trendChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.weekly_trend.labels,
+                        datasets: [{
+                            label: 'High Risk Conversations',
+                            data: data.weekly_trend.data,
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+
+                // Chart: Distribution
+                new Chart(document.getElementById('typeChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(data.scam_types),
+                        datasets: [{
+                            data: Object.values(data.scam_types),
+                            backgroundColor: ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#64748b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#e2e8f0', boxWidth: 12 } }
+                        }
+                    }
+                });
+
+                // Geo List
+                const geoDiv = document.getElementById('geoList');
+                geoDiv.innerHTML = Object.entries(data.geo_data)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([state, count], index) => `
+                        <div class="top-scam-row">
+                            <div style="display:flex; align-items:center gap:1rem;">
+                                <span style="color:var(--text-secondary); width: 24px;">${index + 1}.</span>
+                                <strong>${state}</strong>
+                            </div>
+                            <div style="font-weight:bold; color: #ef4444;">${count} cases</div>
+                        </div>
+                    `).join('');
+
+            } catch (e) {
+                console.error("Error loading enterprise stats:", e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadEnterpriseData);
+    </script>
+    <!-- Floating Chat Button -->
+    <div class="floating-chat-btn" onclick="toggleChat()">
+        <i class="fas fa-robot" style="font-size: 1.5rem; color: white;"></i>
+    </div>
+
+    <div class="floating-chat-window" id="floatingChatWindow">
+        <div class="chat-header" id="floatingChatHeader" style="cursor: move;">
+            <span>Cupid AI</span>
+            <span class="chat-close" onclick="toggleChat()">×</span>
+        </div>
+        <div id="floatChatMessages" class="chat-messages"
+            style="flex-grow: 1; background: var(--surface-dark); margin: 0; border-radius: 0; display: flex; flex-direction: column; gap: 1rem; padding: 1rem; overflow-y: auto;">
+            <div class="chat-message ai"
+                style="background: var(--surface-light); color: var(--text-primary); padding: 0.75rem; border-radius: 12px; width: fit-content;">
+                <strong>AI Assistant:</strong><br>
+                Enterprise Intelligence mode active.
+            </div>
+        </div>
+        <!-- Suggested Questions -->
+        <div id="suggestedQuestions" class="suggested-questions-container"></div>
+
+        <div class="chat-input-container"
+            style="padding: 1rem; background: var(--surface-dark); border-top: 1px solid var(--glass-border); display: flex; gap: 0.5rem; align-items: center;">
+            <input type="file" id="chatImageUpload" hidden accept="image/*" onchange="handleChatImage(this)">
+            <button class="chat-upload-btn" onclick="document.getElementById('chatImageUpload').click()"
+                title="Upload Image">
+                <i class="fas fa-image"></i>
+            </button>
+            <input type="text" id="floatChatInput" placeholder="Analyze threat trends..."
+                style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 25px; padding: 0.75rem 1.25rem; color: white;"
+                onkeypress="if(event.key==='Enter') sendFloatChat()">
+            <button onclick="sendFloatChat()" class="chat-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (typeof pushAiAssistantMessage === 'function') {
+                    pushAiAssistantMessage(`<strong>Welcome to Cupid AI Enterprise!</strong><br>This dashboard tracks global scam trends. You can monitor high-risk hotspots, primary scam vectors, and total financial impact to proactively protect your platform.`);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

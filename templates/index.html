@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CupidSecure | AI-Powered Romance Scam Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-heart-crack"></i> CupidSecure
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="{{ url_for('simulator') }}" class="nav-btn-highlight">Practice Mode</a>
+            <a href="{{ url_for('enterprise_dashboard') }}" class="nav-btn-outline">Enterprise</a>
+        </nav>
+        <div class="header-cta">
+            <a href="{{ url_for('dashboard') }}" class="btn-primary">Launch Dashboard</a>
+        </div>
+    </header>
+
+    <section class="hero-wrapper"
+        style="position: relative; overflow: hidden; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+
+        <!-- Animated Background -->
+        <div class="cyber-grid"></div>
+        <div class="floating-icons">
+            <i class="fas fa-heart-crack icon-float" style="top: 15%; left: 10%; animation-delay: 0s;"></i>
+            <i class="fas fa-lock icon-float" style="top: 25%; right: 15%; animation-delay: 2s;"></i>
+            <i class="fas fa-shield-alt icon-float" style="bottom: 20%; left: 20%; animation-delay: 4s;"></i>
+            <i class="fas fa-exclamation-triangle icon-float" style="top: 10%; right: 30%; animation-delay: 1s;"></i>
+            <i class="fas fa-eye icon-float" style="bottom: 30%; right: 10%; animation-delay: 3s;"></i>
+            <i class="fas fa-credit-card icon-float" style="top: 40%; left: 5%; animation-delay: 5s;"></i>
+            <i class="fas fa-comment-slash icon-float" style="bottom: 15%; right: 40%; animation-delay: 2.5s;"></i>
+            <i class="fas fa-user-secret icon-float" style="top: 20%; left: 40%; animation-delay: 1.5s;"></i>
+        </div>
+        <div class="particles">
+            <div class="particle" style="top: 20%; left: 20%;"></div>
+            <div class="particle" style="top: 60%; left: 80%;"></div>
+            <div class="particle" style="top: 40%; left: 40%;"></div>
+            <div class="particle" style="top: 80%; left: 10%;"></div>
+            <div class="particle" style="top: 10%; left: 90%;"></div>
+        </div>
+
+        <div class="corner-accent top-left"></div>
+        <div class="corner-accent top-right"></div>
+
+        <!-- Hero Content (Modern Animated) -->
+        <div class="container hero-content" style="position: relative; z-index: 10; text-align: center;">
+            <h1 class="animate-fade-in-up">Don't Let Love Blind You<br><span>Spot the Scam.</span></h1>
+            <p class="animate-fade-in-up delay-100">Advanced AI analysis to detect romance scams in real-time. Protect
+                your heart and your wallet from online
+                predators.</p>
+            <div class="hero-cta-wrapper animate-fade-in-up delay-200">
+                <a href="{{ url_for('dashboard') }}" class="btn-primary">Analyze a Conversation Now</a>
+            </div>
+        </div>
+
+        <!-- Glow Divider -->
+        <div class="hero-glow-divider"></div>
+    </section>
+
+    <!-- Main Content Wrapper (Modern Structure) -->
+    <div class="main-content-wrapper">
+
+        <!-- Features Section -->
+        <!-- Feature Highlights Component (Cards below Hero) -->
+        <section id="features" class="features-section-modern container">
+            <div class="grid col-1 md:col-3 gap-6"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <div class="feature-highlight-card animate-fade-in-up delay-300">
+                    <div class="feature-icon-wrapper"><i class="fas fa-robot"></i></div>
+                    <h3 class="feature-title">AI Pattern Recognition</h3>
+                    <p class="feature-desc">Our algorithms detect subtle linguistic patterns used by professional
+                        scammers to groom victims.</p>
+                </div>
+                <div class="feature-highlight-card animate-fade-in-up delay-300" style="animation-delay: 0.4s;">
+                    <div class="feature-icon-wrapper"><i class="fas fa-comments-dollar"></i></div>
+                    <h3 class="feature-title">Financial Risk Assessment</h3>
+                    <p class="feature-desc">Calculate specific monetary risk levels based on relationship duration and
+                        payment method analysis.</p>
+                </div>
+                <div class="feature-highlight-card animate-fade-in-up delay-300" style="animation-delay: 0.5s;">
+                    <div class="feature-icon-wrapper"><i class="fas fa-user-shield"></i></div>
+                    <h3 class="feature-title">Private & Secure</h3>
+                    <p class="feature-desc">Your data is processed anonymously. We never store your personal
+                        conversations.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Why CupidSecure Component -->
+        <!-- Why CupidSecure Component (Premium) -->
+        <section class="why-section-premium">
+            <div class="container">
+                <div class="why-panel">
+                    <div class="why-title-wrapper">
+                        <h2 class="section-title-premium">Why CupidSecure?</h2>
+                        <div class="title-underline"></div>
+                    </div>
+
+                    <div class="why-grid-premium">
+                        <!-- Card 1 -->
+                        <div class="why-card-premium">
+                            <div class="why-icon-badge">
+                                <i class="fas fa-shield-virus"></i>
+                            </div>
+                            <h3 class="card-title-premium">Real Problem, Real Solution</h3>
+                            <p class="card-text-premium">$1.3 billion lost annually to romance scams. We are the first
+                                proactive defense.</p>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="why-card-premium">
+                            <div class="why-icon-badge">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3 class="card-title-premium">Powered by Gemini AI</h3>
+                            <p class="card-text-premium">Utilizing Google's most advanced AI for deep semantic
+                                understanding.</p>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="why-card-premium">
+                            <div class="why-icon-badge">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3 class="card-title-premium">Built by Students</h3>
+                            <p class="card-text-premium">Created at George Mason University with a passion for social
+                                good.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Mission Component -->
+        <section id="how-it-works" class="mission-section">
+            <div class="container">
+                <div class="mission-split">
+                    <div class="mission-slideshow">
+                        <img src="{{ url_for('static', filename='img/mission-protect.png') }}"
+                            class="mission-slide active" alt="Protection">
+                        <img src="{{ url_for('static', filename='img/mission-analyze.png') }}" class="mission-slide"
+                            alt="Analysis">
+                        <img src="{{ url_for('static', filename='img/mission-impact.png') }}" class="mission-slide"
+                            alt="Impact">
+                    </div>
+                    <div class="mission-content">
+                        <div class="mission-glass-panel">
+                            <h3 class="mission-subtitle">Protecting Hearts, Preventing Fraud</h3>
+                            <h2 class="mission-header-alt">Our Mission</h2>
+                            <p>Romance scams cost victims $1.3 billion annually. CupidSecure is the first AI-powered
+                                proactive defense system designed to detect and prevent these devastating frauds.</p>
+                            <p>Using Google's advanced Gemini 2.0 Flash AI, we analyze conversation patterns and
+                                financial risk indicators in real-time—giving users instant alerts when red flags
+                                appear.</p>
+                            <p>We're building a safer, more transparent online dating ecosystem where users can connect
+                                confidently.</p>
+                            <span class="mission-citation">Source: Federal Trade Commission (FTC) 2023 Consumer Sentinel
+                                Report</span>
+                            <a href="{{ url_for('simulator') }}" class="btn-primary"
+                                style="padding: 12px 28px; margin-top: 10px; display: inline-block;">See How It
+                                Works</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Meet The Team Component (Modern Grid) -->
+        <section class="team-section">
+            <div class="container">
+                <h2 class="section-title">Meet The Team</h2>
+                <div class="team-grid-modern">
+                    <!-- Haytham -->
+                    <div class="team-member-card">
+                        <div class="team-avatar">
+                            <img src="{{ url_for('static', filename='img/Haytham.png') }}" alt="Haytham Abouelfaid">
+                        </div>
+                        <h3 class="team-name">Haytham Abouelfaid</h3>
+                        <div class="team-role">Full Stack Developer</div>
+                        <p class="team-bio">Built both backend and frontend architecture and AI integration pipelines.
+                            Passionate
+                            about AI safety.</p>
+                        <div class="team-socials">
+                            <a href="https://github.com/HaythamAbouelfaid" target="_blank" class="social-btn"><i
+                                    class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/haytham-abouelfaid/" target="_blank"
+                                class="social-btn"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <!-- Aliza -->
+                    <div class="team-member-card">
+                        <div class="team-avatar">
+                            <img src="{{ url_for('static', filename='img/Aliza.png') }}" alt="Aliza Ahmed">
+                        </div>
+                        <h3 class="team-name">Aliza Ahmed</h3>
+                        <div class="team-role">Frontend Developer</div>
+                        <p class="team-bio">Designed the user interface and experience. Focused on intuitive, accessible
+                            design.</p>
+                        <div class="team-socials">
+                            <a href="https://www.linkedin.com/in/alizaahmad/" target="_blank" class="social-btn"><i
+                                    class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <!-- Hiba -->
+                    <div class="team-member-card">
+                        <div class="team-avatar">
+                            <img src="{{ url_for('static', filename='img/Hiba.png') }}" alt="Hiba Basharat">
+                        </div>
+                        <h3 class="team-name">Hiba Basharat</h3>
+                        <div class="team-role">Data Lead</div>
+                        <p class="team-bio">Curated the dataset of scam conversations and fine-tuned the detection
+                            models.</p>
+                        <div class="team-socials">
+                            <a href="https://www.linkedin.com/in/hiba-basharat-6708a22b4/" target="_blank"
+                                class="social-btn"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- FAQ Component (Modern Accordion) -->
+    <section class="faq-section">
+        <div class="container" style="max-width: 900px;">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-accordion">
+                <details class="faq-item">
+                    <summary class="faq-summary">Is CupidSecure free to use?</summary>
+                    <div class="faq-answer-body">Yes! CupidSecure is currently free for all users. Our mission is to
+                        protect everyone from online romance scams regardless of their financial status.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">How does the AI detection work?</summary>
+                    <div class="faq-answer-body">We use advanced AI (Gemini 2.0 Flash) to analyze conversation
+                        patterns, language cues, and psychological triggers that are commonly found in known romance
+                        scams.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">Is my data safe and private?</summary>
+                    <div class="faq-answer-body">Absolutely. We process your data anonymously for analysis and do
+                        not store your personal conversations or images on our servers.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">Can I report a scammer?</summary>
+                    <div class="faq-answer-body">CupidSecure helps you identify scams. If you confirm a scam, we
+                        recommend reporting it to the platform you're using and relevant authorities like the FTC or
+                        FBI IC3.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">How accurate is the AI detection?</summary>
+                    <div class="faq-answer-body">Our Gemini-powered AI achieves 94% accuracy in identifying romance
+                        scam tactics, trained on thousands of real scam conversations and FTC case data.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">Can I use CupidSecure on dating apps?</summary>
+                    <div class="faq-answer-body">Yes! You can copy-paste conversations from any dating app, social
+                        media platform, or messaging service. CupidSecure analyzes the text regardless of where it
+                        came from.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">What if someone I'm talking to gets flagged?</summary>
+                    <div class="faq-answer-body">A flag doesn't mean they're definitely a scammer—it means patterns
+                        match known scam tactics. We provide detailed explanations so you can make informed
+                        decisions.</div>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-summary">Is there a mobile app?</summary>
+                    <div class="faq-answer-body">Currently CupidSecure is web-based and mobile-responsive. A
+                        dedicated
+                        mobile app is in development for iOS and Android, planned for Q2 2026.</div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat-btn" onclick="toggleChat()">
+        <i class="fas fa-robot" style="font-size: 1.5rem; color: white;"></i>
+    </div>
+
+    <!-- Floating Chat Window -->
+    <div class="floating-chat-window" id="floatingChatWindow">
+        <div class="chat-header" id="floatingChatHeader" style="cursor: move;">
+            <span>Cupid AI</span>
+            <span class="chat-close" onclick="toggleChat()">×</span>
+        </div>
+        <div id="floatChatMessages" class="chat-messages"
+            style="flex-grow: 1; background: var(--surface-dark); margin: 0; border-radius: 0;">
+            <div class="chat-message ai">
+                <strong>Cupid AI:</strong><br>
+                Hi! I'm here to help. Ask me anything about romance scams or how to use this tool.
+            </div>
+        </div>
+        <!-- Suggested Questions -->
+        <div id="suggestedQuestions" class="suggested-questions-container"></div>
+
+        <div class="chat-input-container">
+            <input type="file" id="chatImageUpload" hidden accept="image/*" onchange="handleChatImage(this)">
+            <button class="chat-upload-btn" onclick="document.getElementById('chatImageUpload').click()"
+                title="Upload Image">
+                <i class="fas fa-image"></i>
+            </button>
+            <input type="text" id="floatChatInput" placeholder="Type a message..."
+                onkeypress="if(event.key==='Enter') sendFloatChat()">
+            <button class="chat-send-btn" onclick="sendFloatChat()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <footer class="site-footer-modern">
+        <div class="container footer-container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col brand-col">
+                    <div class="footer-logo">
+                        <a href="{{ url_for('index') }}">
+                            <i class="fas fa-shield-alt"></i> CupidSecure
+                        </a>
+                    </div>
+                    <p class="footer-tagline">
+                        CupidSecure uses AI to detect romance scams in real-time, protecting users from financial and
+                        emotional harm.
+                    </p>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col links-col">
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="{{ url_for('simulator') }}">Practice Mode</a></li>
+                        <li><a href="{{ url_for('enterprise_dashboard') }}">Enterprise</a></li>
+                        <li><a href="{{ url_for('privacy_page') }}">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Contact & Social -->
+                <div class="footer-col contact-col">
+                    <h4 class="footer-heading">Contact & Social</h4>
+                    <a href="mailto:team@cupidsecure.com" class="footer-email">
+                        <i class="fas fa-envelope"></i> team@cupidsecure.com
+                    </a>
+                    <div class="footer-socials">
+                        <a href="https://github.com/HaythamAbouelfaid" target="_blank" class="social-icon"
+                            aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon" aria-label="X (Twitter)"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <span>Built at George Mason University • PatriotHacks 2026 Finalist</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Slideshow Script
+        document.addEventListener('DOMContentLoaded', function () {
+            const slides = document.querySelectorAll('.mission-slide');
+            let currentSlide = 0;
+
+            if (slides.length > 0) {
+                setInterval(() => {
+                    slides[currentSlide].classList.remove('active');
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    slides[currentSlide].classList.add('active');
+                }, 5000);
+            }
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Simple toggle for landing page
+        function toggleChat() {
+            const win = document.getElementById('floatingChatWindow');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
+</body>
+
+</html>

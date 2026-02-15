@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy & Security | CupidSecure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        .privacy-container {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .privacy-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .checklist-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .checklist-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-heart-crack"></i> CupidSecure
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        </nav>
+        <div class="header-cta">
+            <span class="dashboard-badge">Security Center</span>
+        </div>
+    </header>
+
+    <main class="privacy-container">
+        <h1 style="margin-bottom: 0.5rem;">Privacy & Security Center</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 3rem; font-size: 1.1rem;">
+            We believe you shouldn't have to trade your privacy for safety. Here is how we protect your data.
+        </p>
+
+        <!-- Core Privacy Principles -->
+        <div class="privacy-card">
+            <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-user-lock"></i> How We Handle Your Conversations</h2>
+
+            <div class="checklist-item">
+                <div class="checklist-icon"><i class="fas fa-memory"></i></div>
+                <div>
+                    <h3 style="margin-bottom: 0.25rem;">In-Memory Only Processing</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        Your text and images are processed in temporary memory (RAM) and are discarded immediately after
+                        analysis.
+                        We do not store, log, or save your conversations to any database.
+                    </p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <div class="checklist-icon"><i class="fas fa-mask"></i></div>
+                <div>
+                    <h3 style="margin-bottom: 0.25rem;">Automatic Anonymization</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        Our algorithms are designed to ignore personally identifiable information (PII) like real names,
+                        addresses, and phone numbers,
+                        focusing only on semantic patterns indicating fraud.
+                    </p>
+                </div>
+            </div>
+
+            <div class="checklist-item">
+                <div class="checklist-icon"><i class="fas fa-server"></i></div>
+                <div>
+                    <h3 style="margin-bottom: 0.25rem;">Secure Encryption</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        All data transmitted between your device and our verification engine is encrypted using TLS 1.3
+                        (banking-grade security).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Privacy Tools -->
+        <div class="privacy-card" style="border-color: var(--primary-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;"><i class="fas fa-eye-slash"></i> Analysis Privacy Controls</h2>
+                <div
+                    style="background: var(--surface-light); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--glass-border);">
+                    Available in Dashboard
+                </div>
+            </div>
+
+            <p style="margin-bottom: 1.5rem;">
+                You can toggle these settings in the main dashboard to sanitize your view or screen recordings.
+            </p>
+
+            <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 8px;">
+                <div style="margin-bottom: 1rem; display: flex; gap: 2rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="demoRedact" onchange="toggleDemoRedact()"> Redacted View
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="demoMask" onchange="toggleDemoMask()"> Mask Avatars & Names
+                    </label>
+                </div>
+
+                <!-- Fake Conversation for Demo -->
+                <div class="conversation-preview"
+                    style="border: 1px solid var(--glass-border); padding: 1rem; border-radius: 8px; background: rgba(255,255,255,0.02);">
+                    <div class="msg-row" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="avatar"
+                            style="width: 40px; height: 40px; background: #ddd; border-radius: 50%; overflow: hidden;">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                style="width: 100%; height: 100%;">
+                        </div>
+                        <div>
+                            <div class="name" style="font-weight: bold; margin-bottom: 0.25rem; color: #3b82f6;">Captain
+                                James</div>
+                            <div class="msg-content"
+                                style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 0 12px 12px 12px;">
+                                Hello Alice, I need your help with the package.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="msg-row" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <div>
+                            <div class="msg-content"
+                                style="background: var(--primary-color); padding: 0.5rem 1rem; border-radius: 12px 0 12px 12px;">
+                                I'm not sure if I can send money right now, James.
+                            </div>
+                        </div>
+                        <div class="avatar"
+                            style="width: 40px; height: 40px; background: #ddd; border-radius: 50%; overflow: hidden;">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alice"
+                                style="width: 100%; height: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleDemoRedact() {
+            const isRedacted = document.getElementById('demoRedact').checked;
+            const contents = document.querySelectorAll('.msg-content');
+
+            contents.forEach(el => {
+                el.style.filter = isRedacted ? 'blur(5px)' : 'none';
+            });
+        }
+
+        function toggleDemoMask() {
+            const isMasked = document.getElementById('demoMask').checked;
+            const names = document.querySelectorAll('.name');
+            const avatars = document.querySelectorAll('.avatar img');
+
+            names.forEach(el => {
+                el.textContent = isMasked ? 'User_Anonymized_123' : 'Captain James';
+            });
+
+            avatars.forEach(el => {
+                el.style.opacity = isMasked ? '0.1' : '1';
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CupidSecure</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-heart-crack"></i> CupidSecure
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('simulator') }}" class="nav-btn-highlight">Practice Mode</a>
+            <a href="#" onclick="loadDemo('1')" class="nav-btn-outline">Load Demo (Military)</a>
+            <a href="#" onclick="loadDemo('2')" class="nav-btn-outline">Load Demo (Crypto)</a>
+        </nav>
+        <div class="header-cta">
+            <span class="dashboard-badge">Risk Dashboard</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            <!-- Left Column: Inputs -->
+            <div class="input-section">
+
+                <!-- Conversation Analyzer -->
+                <div class="glass-panel card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2 style="margin: 0;"><i class="fas fa-comments"></i> Conversation Analyzer</h2>
+                        <span
+                            style="background: linear-gradient(135deg, #10b981, #3b82f6); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white;">
+                            <i class="fas fa-sparkles"></i> Powered by Gemini
+                        </span>
+                    </div>
+
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                        Paste messages or upload a screenshot to analyze.
+                    </p>
+
+                    <div
+                        style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: 8px; font-size: 0.85rem; display: flex; align-items: start; gap: 0.5rem;">
+                        <i class="fas fa-user-shield" style="color: var(--success); margin-top: 2px;"></i>
+                        <div>
+                            <strong>Privacy First Mode:</strong> All analysis is processed in-memory and discarded.
+                            <div style="margin-top: 0.5rem; display: flex; gap: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="maskDataToggle"> Mask Personal Info
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="redactedViewToggle" onchange="toggleRedactedView()">
+                                    Redacted View
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drag & Drop Zone -->
+                    <div class="upload-area" id="dbDropZone"
+                        style="padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(0,0,0,0.2); border: 2px dashed var(--surface-light); border-radius: 10px; cursor: pointer; text-align: center;">
+                        <input type="file" id="dbImageUpload" accept="image/*" style="display: none;">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt"
+                                style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 0.5rem;"></i>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Drag & Drop Screenshot<br>or
+                                Click to Upload</p>
+                        </div>
+                        <div id="uploadPreview" style="display: none;">
+                            <img id="dbPreviewImg"
+                                style="max-height: 150px; border-radius: 8px; margin-bottom: 0.5rem;">
+                            <p style="font-size: 0.8rem; color: var(--success);"><i class="fas fa-check-circle"></i>
+                                Image Selected</p>
+                            <button class="btn-primary"
+                                style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: var(--danger);"
+                                onclick="event.stopPropagation(); clearImage();">Remove</button>
+                        </div>
+                    </div>
+
+                    <div id="messagesList" class="chat-interface" style="max-height: 300px; margin-top: 0;">
+                        <div class="message-row">
+                            <input type="text" class="sender-input" placeholder="Sender" value="Them">
+                            <textarea class="message-input" placeholder="Paste their message here..."
+                                rows="2"></textarea>
+                            <button class="remove-btn" onclick="removeMessage(this)">×</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <button onclick="addMessage('Them', '')" class="btn-primary"
+                            style="background: var(--surface-light);"><i class="fas fa-plus"></i> Add Message</button>
+                        <button onclick="analyzeConversation()" class="btn-primary" style="flex-grow: 1;"><i
+                                class="fas fa-search"></i> Analyze Risk</button>
+                    </div>
+                </div>
+
+                <!-- Financial Risk Calculator -->
+                <div class="glass-panel card">
+                    <h2><i class="fas fa-calculator"></i> Financial Request Check</h2>
+                    <div style="display: grid; gap: 1rem;">
+                        <div>
+                            <label>Amount Requested ($)</label>
+                            <input type="number" id="calcAmount" class="form-input" placeholder="e.g. 500">
+                        </div>
+                        <div>
+                            <label>Stated Reason</label>
+                            <input type="text" id="calcReason" class="form-input" placeholder="e.g. Medical emergency">
+                        </div>
+                        <div>
+                            <label>Payment Method</label>
+                            <select id="calcPayment" class="form-select">
+                                <option value="bank">Bank Transfer</option>
+                                <option value="crypto">Cryptocurrency (Bitcoin/USDT)</option>
+                                <option value="gift card">Gift Cards</option>
+                                <option value="zelle">Zelle/CashApp</option>
+                                <option value="wire">Wire Transfer</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Relationship Duration (Days)</label>
+                            <input type="number" id="calcDays" class="form-input"
+                                placeholder="Days since first contact">
+                        </div>
+                        <button onclick="calculateFinancialRisk()" class="btn-primary"
+                            style="margin-top: 0.5rem;">Calculate Risk</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="results-section">
+
+                <!-- Conversation Analysis Results -->
+                <div id="results" class="glass-panel card">
+
+                    <!-- Loading Overlay -->
+                    <div id="resultsLoading" class="loading-overlay">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">ANALYZING EVIDENCE...</div>
+                    </div>
+
+                    <h2>Analysis Results</h2>
+
+                    <div class="risk-score-display">
+                        <div id="riskScoreNumber" class="risk-score-number">0</div>
+                        <div id="riskMessage" style="font-weight: 600; letter-spacing: 1px;">ANALYZING...</div>
+                    </div>
+
+                    <div class="risk-meter-container">
+                        <div id="riskMeterFill" class="risk-meter-fill"></div>
+                    </div>
+
+                    <button onclick="downloadReport()" class="btn-primary"
+                        style="margin-top: 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-file-pdf"></i> Download Evidence Report
+                    </button>
+
+                    <div id="resultContentArea">
+                        <!-- Heatmap & Timeline Section -->
+                        <div id="timelineSection" style="margin-bottom: 2rem; display: none;">
+                            <h3 style="margin-bottom: 0.5rem;">Scam Story Timeline & Heatmap</h3>
+                            <div class="glass-panel"
+                                style="padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);">
+                                <canvas id="riskHeatmapChart"
+                                    style="max-height: 200px; width: 100%; margin-bottom: 1rem;"></canvas>
+                                <div id="textTimeline" class="timeline-container">
+                                    <!-- Timeline items injected via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="scamTypeCard"
+                            style="display: none; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid var(--primary-color); border-radius: 12px; padding: 1.5rem;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                <div>
+                                    <span
+                                        style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-color);">Likely
+                                        Scam Type</span>
+                                    <h3 id="scamTypeName"
+                                        style="font-size: 1.5rem; margin: 0.25rem 0 0.5rem 0; color: white;">Analysis
+                                        Pending...</h3>
+                                </div>
+                                <div id="scamProbabilityBadge"
+                                    style="background: var(--surface-light); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid var(--glass-border);">
+                                    Confidence: <span id="scamProbabilityVal">-</span>
+                                </div>
+                            </div>
+
+                            <p id="scamTypeDescription"
+                                style="color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6;">
+                                ...
+                            </p>
+
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                                <div>
+                                    <div
+                                        style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        Avg Loss (FTC Data)</div>
+                                    <div id="scamAvgLoss"
+                                        style="font-size: 1.25rem; font-weight: bold; color: var(--danger);">$0</div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        Risk Level</div>
+                                    <div id="scamRiskLevel"
+                                        style="font-size: 1.25rem; font-weight: bold; color: var(--text-primary);">-
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <h3 style="margin-bottom: 0.5rem;">AI Insights</h3>
+                            <div id="insightsList"></div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Detected Patterns</h3>
+                            <div id="patternsList"></div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Flags</h3>
+                            <div id="flagsList"></div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <h3 style="margin-bottom: 0.5rem;">Recommended Actions</h3>
+                            <div id="actionsList" class="actions-list"></div>
+                        </div>
+
+                        <!-- Safety Response Assistant -->
+                        <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                            <h3 style="margin-bottom: 1rem;"><i class="fas fa-shield-alt"></i> Safety Response Assistant
+                            </h3>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                Not sure what to say? Generate a safe, de-escalating response script.
+                            </p>
+
+                            <div class="response-buttons"
+                                style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <button class="btn-script" onclick="generateScript('decline_money')">
+                                    <i class="fas fa-ban"></i> Decline Money
+                                </button>
+                                <button class="btn-script" onclick="generateScript('verify_identity')">
+                                    <i class="fas fa-id-card"></i> Ask for Proof
+                                </button>
+                                <button class="btn-script btn-script-danger" onclick="generateScript('break_contact')">
+                                    <i class="fas fa-user-slash"></i> End Contact
+                                </button>
+                            </div>
+
+                            <div id="scriptOutput" style="display: none;">
+                                <div class="glass-panel"
+                                    style="background: rgba(0,0,0,0.3); padding: 1rem; border: 1px solid var(--glass-border);">
+                                    <div id="scriptLoading"
+                                        style="display: none; color: var(--text-secondary); font-style: italic; margin-bottom: 0.5rem;">
+                                        <i class="fas fa-spinner fa-spin"></i> Generating safe responses...
+                                    </div>
+                                    <div id="scriptList" class="script-list"
+                                        style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Analysis Results -->
+                <div id="financialResults" class="glass-panel card">
+                    <h2>Financial Risk Assessment</h2>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span>Risk Score:</span>
+                        <span id="finRiskScore" style="font-size: 2rem; font-weight: 800;">0</span>
+                    </div>
+
+                    <div class="risk-meter-container">
+                        <div id="finRiskMeterFill" class="risk-meter-fill"></div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <strong>Recommendation:</strong>
+                        <p id="finRecommendation"></p>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <strong>Action:</strong>
+                        <p id="finAction" style="font-weight: bold;"></p>
+                    </div>
+
+                    <ul id="finRiskFactors" style="list-style-position: inside; color: var(--text-secondary);"></ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat-btn" onclick="toggleChat()">
+        <i class="fas fa-robot" style="font-size: 1.5rem; color: white;"></i>
+    </div>
+
+    <!-- Floating Chat Window -->
+    <div class="floating-chat-window" id="floatingChatWindow">
+        <div class="chat-header" id="floatingChatHeader" style="cursor: move;">
+            <span>Cupid AI</span>
+            <span class="chat-close" onclick="toggleChat()">×</span>
+        </div>
+        <div id="floatChatMessages" class="chat-messages"
+            style="flex-grow: 1; background: var(--surface-dark); margin: 0; border-radius: 0;">
+            <div class="chat-message ai">
+                <strong>AI Assistant:</strong><br>
+                Hi! I'm here to help. Upload a screenshot or ask me anything about online safety.
+            </div>
+        </div>
+        <!-- Suggested Questions -->
+        <div id="suggestedQuestions" class="suggested-questions-container"></div>
+
+        <div class="chat-input-container" style="padding: 1rem; background: var(--surface-dark);">
+            <input type="file" id="chatImageUpload" hidden accept="image/*" onchange="handleChatImage(this)">
+            <button class="chat-upload-btn" onclick="document.getElementById('chatImageUpload').click()"
+                title="Upload Image">
+                <i class="fas fa-image"></i>
+            </button>
+            <input type="text" id="floatChatInput" placeholder="Type a message..."
+                onkeypress="if(event.key==='Enter') sendFloatChat()">
+            <button class="chat-send-btn" onclick="sendFloatChat()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer with GMU Logo -->
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary); margin-top: 2rem;">
+        <img src="{{ url_for('static', filename='img/gmu-logo.png') }}" alt="George Mason University"
+            style="height: 50px; margin-bottom: 0.5rem; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 5px;">
+        <p>Built at George Mason University 🎓 HackFax 2026</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        window.onload = function () {
+            setTimeout(() => {
+                if (typeof pushAiAssistantMessage === 'function') {
+                    pushAiAssistantMessage(`<strong>Welcome to your Security Dashboard!</strong><br>I'm your AI safety partner. To get started:<br>1. Paste a conversation or upload a screenshot on the left.<br>2. Click 'Analyze Conversation' for a deep risk assessment.<br>3. Use the 'Financial Risk Calculator' below if they've asked for money.<br><br>I'll be here to help explain your results!`);
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+
+</html>

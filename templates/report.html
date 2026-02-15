@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CupidSecure Evidence Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ec4899;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .report-meta {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .risk-banner {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #e2e8f0;
+        }
+
+        .risk-score {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+
+        .risk-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        .pattern-item,
+        .insight-item {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e2e8f0;
+            margin-right: 0.5rem;
+        }
+
+        .tag.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .pattern-item,
+            .insight-item {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-heart-crack"></i> CupidSecure
+        </div>
+        <div class="report-meta">
+            <div><strong>Evidence Report</strong></div>
+            <div>Generated: {{ date }}</div>
+            <div>Ref ID: #{{ range(1000, 9999) | random }}</div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="risk-banner">
+        <div>
+            <div class="risk-label" style="color: {{ data.risk_color }};">{{ data.risk_message }}</div>
+            <div style="color: #64748b;">Automated Fraud Analysis</div>
+        </div>
+        <div style="text-align: right;">
+            <div class="risk-score" style="color: {{ data.risk_color }};">{{ data.risk_score }}/100</div>
+            <div style="font-size: 0.9rem; color: #64748b;">Risk Score</div>
+        </div>
+    </div>
+
+    {% if data.scam_classification and data.scam_classification.type != 'None/Unknown' %}
+    <div class="section">
+        <div class="section-title">Classified Scam Typography</div>
+        <div style="background: #fdf2f8; border: 1px solid #fbcfe8; border-radius: 8px; padding: 1.5rem;">
+            <h3 style="margin-top: 0; margin-bottom: 0.5rem; color: #be185d;">{{ data.scam_classification.type }}</h3>
+            <p style="margin-bottom: 1rem;">{{ data.scam_classification.description }}</p>
+            <div style="display: flex; gap: 2rem; font-size: 0.9rem;">
+                <div>
+                    <strong>Average Victim Loss:</strong>
+                    <span style="color: #be185d;">{{ data.scam_classification.avg_loss }}</span>
+                </div>
+                <div>
+                    <strong>Confidence:</strong>
+                    <span>{{ data.scam_classification.probability }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Key AI Insights</div>
+        {% for insight in data.ai_insights %}
+        <div class="insight-item">
+            <div style="font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                {% if insight.type == 'danger' %}
+                <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                {% elif insight.type == 'warning' %}
+                <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                {% else %}
+                <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                {% endif %}
+                {{ insight.title }}
+            </div>
+            <p style="margin: 0; color: #475569; font-size: 0.95rem;">{{ insight.description }}</p>
+        </div>
+        {% else %}
+        <p style="color: #64748b; font-style: italic;">No specific insights generated.</p>
+        {% endfor %}
+    </div>
+
+    {% if data.detected_patterns %}
+    <div class="section">
+        <div class="section-title">Detected Behavioral Patterns</div>
+        {% for pattern in data.detected_patterns %}
+        <div class="pattern-item">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <strong>{{ pattern.name | replace('_', ' ') | title }}</strong>
+                <span class="tag high">High Impact</span>
+            </div>
+            <p style="margin: 0; font-size: 0.9rem; color: #475569;">{{ pattern.description }}</p>
+            {% if pattern.matches %}
+            <div
+                style="margin-top: 0.5rem; font-size: 0.85rem; color: #64748b; background: #f8fafc; padding: 0.5rem; border-radius: 4px;">
+                <em>"{{ pattern.matches[0] }}"</em>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if data.timeline %}
+    <div class="section">
+        <div class="section-title">Timeline of Escalation</div>
+        <div style="border-left: 2px solid #e2e8f0; padding-left: 1.5rem;">
+            {% for item in data.timeline %}
+            <div class="timeline-item">
+                <div style="min-width: 100px; font-weight: 600; color: #64748b;">{{ item.phase }}</div>
+                <div>
+                    <div style="font-weight: 600;">{{ item.event }}</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8;">Risk Level: {{ item.risk_score }}/100</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Recommended Next Steps</div>
+        <ul style="list-style-type: disc; padding-left: 1.5rem; color: #1e293b;">
+            <li style="margin-bottom: 0.5rem;"><strong>Cease all financial transactions immediately.</strong> Do not
+                send money, gift cards, or cryptocurrency.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Cut off contact.</strong> Block the user on all platforms (social
+                media, messaging apps, phone).</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Report this profile.</strong> Use the platform's reporting tool
+                and mention "Romance Scam".</li>
+            <li style="margin-bottom: 0.5rem;"><strong>File an official report.</strong> Submit this evidence to the FTC
+                at <a href="https://reportfraud.ftc.gov" target="_blank">reportfraud.ftc.gov</a> or the FBI IC3 at <a
+                    href="https://www.ic3.gov" target="_blank">ic3.gov</a>.</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>This report was automatically generated by CupidSecure AI. It is intended for informational and reporting
+            purposes only.</p>
+        <button class="no-print" onclick="window.print()"
+            style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #ec4899; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            <i class="fas fa-print"></i> Print Report / Save as PDF
+        </button>
+    </div>
+</body>
+
+</html>
