@@ -1066,3 +1066,21 @@ async function downloadReport() {
     form.submit();
     document.body.removeChild(form);
 }
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const navLinks = document.getElementById('navLinks');
+    navLinks.classList.toggle('active');
+}
+
+// Close mobile menu when a link is clicked
+document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) {
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+    }
+});

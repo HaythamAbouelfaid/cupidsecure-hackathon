@@ -40,7 +40,10 @@
                 <i class="fas fa-heart-crack"></i> CupidSecure
             </a>
         </div>
-        <nav class="nav-links">
+        <div class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+        <nav class="nav-links" id="navLinks">
             <a href="{{ url_for('index') }}" class="nav-btn-outline">Home</a>
             <a href="{{ url_for('dashboard') }}" class="nav-btn-highlight">Dashboard</a>
         </nav>
@@ -110,6 +113,7 @@
         </div>
     </main>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');

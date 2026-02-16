@@ -138,6 +138,34 @@
                 break-inside: avoid;
             }
         }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .report-meta {
+                text-align: left;
+                width: 100%;
+            }
+
+            .risk-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .risk-banner>div:last-child {
+                text-align: left !important;
+                margin-top: 1rem;
+            }
+        }
     </style>
 </head>
 
