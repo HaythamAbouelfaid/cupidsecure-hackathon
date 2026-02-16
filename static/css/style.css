@@ -2360,6 +2360,7 @@ details[open] summary.faq-summary::after {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
 /* =========================================
    MOBILE RESPONSIVENESS (ADDED)
    ========================================= */
@@ -2370,42 +2371,62 @@ details[open] summary.faq-summary::after {
     font-size: 1.5rem;
     color: white;
     cursor: pointer;
-    z-index: 1001; /* Above mobile menu overlay */
+    z-index: 1001;
+    /* Above mobile menu overlay */
 }
 
 @media (max-width: 900px) {
-    /* Header Adjustments */
+
+    /* Header Adjustments - Sticky */
     header {
         padding: 1rem;
         justify-content: space-between;
-        position: relative; /* Ensure z-index works */
+        position: sticky;
+        /* Make header sticky */
+        top: 0;
+        z-index: 1002;
+        /* High z-index to stay on top */
+        background: rgba(5, 8, 22, 0.95);
+        /* Ensure background is opaque when scrolling */
+        backdrop-filter: blur(10px);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        /* Optional: separator */
     }
 
     .mobile-menu-btn {
         display: block;
-        position: absolute;
-        right: 1.5rem;
-        top: 1.5rem;
+        /* Position relative to flex container or absolute if needed. 
+           In flex header, it can just be a block. */
+        position: static;
+        font-size: 1.5rem;
     }
 
+    /* Mobile Menu - Full Screen Overlay */
     .nav-links {
         display: flex;
         flex-direction: column;
         position: fixed;
         top: 0;
         right: -100%;
-        width: 70%;
-        max-width: 300px;
+        width: 100%;
+        /* Full width */
         height: 100vh;
-        background: rgba(5, 8, 22, 0.95);
-        backdrop-filter: blur(20px);
-        padding: 5rem 2rem;
+        /* Full height */
+        background: #050816;
+        /* Solid background */
+        padding: 6rem 2rem;
+        /* Top padding to clear header */
         transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1000;
-        border-left: 1px solid var(--glass-border);
-        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-        gap: 1.5rem;
-        align-items: flex-start;
+        /* Behind header/button (1002), but above content */
+        align-items: center;
+        /* Center items */
+        justify-content: center;
+        /* Center vertically */
+        gap: 2rem;
     }
 
     .nav-links.active {
@@ -2413,30 +2434,44 @@ details[open] summary.faq-summary::after {
     }
 
     .nav-links a {
-        font-size: 1.1rem;
-        width: 100%;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .nav-btn-highlight, .nav-btn-outline {
+        font-size: 1.5rem;
+        /* Larger font for mobile menu */
+        width: auto;
+        padding: 0.5rem 0;
+        border-bottom: none;
         text-align: center;
-        margin-top: 0.5rem;
     }
 
-    /* Hide the CTA button in header on very small screens if it clutters, 
-       or move it into the menu. For now, let's keep it but adjust layout if needed. 
-       Actually, the current header grid is: auto 1fr auto.
-       On mobile we want: Logo - Burger. The CTA might be hidden or moved. 
-    */
-    
-    header {
-        display: flex; /* Override grid */
-        align-items: center;
+    .nav-btn-highlight,
+    .nav-btn-outline {
+        text-align: center;
+        margin-top: 1rem;
+        width: 100%;
+        max-width: 300px;
     }
-    
+
     .header-cta {
-        display: none; /* Hide 'Launch Dashboard' on mobile header to save space, relies on Hero CTA */
+        display: none;
+    }
+
+    /* Floating Chat Window - Mobile Fix */
+    .floating-chat-window {
+        width: 90% !important;
+        /* Responsive width */
+        height: 60vh !important;
+        /* Max height relative to viewport */
+        max-height: 500px;
+        bottom: 80px !important;
+        /* Above floating button */
+        right: 5% !important;
+        left: 5% !important;
+        /* Center horizontally */
+        border-radius: 16px;
+    }
+
+    .floating-chat-btn {
+        bottom: 2rem;
+        right: 1.5rem;
     }
 
     /* Container & Typography */
@@ -2444,43 +2479,49 @@ details[open] summary.faq-summary::after {
         padding: 0 1.5rem;
     }
 
-    h1, .hero-content h1 {
+    h1,
+    .hero-content h1 {
         font-size: 2.5rem !important;
     }
-    
-    .section-title, .section-title-premium {
+
+    .section-title,
+    .section-title-premium {
         font-size: 2rem;
     }
 
     /* Hero Section */
     .hero-wrapper {
-        min-height: 100vh; /* Ensure full height on mobile */
-        padding-top: 100px !important;
+        min-height: auto;
+        padding-top: 40px !important;
+        /* Less padding since header is sticky/smaller */
         padding-bottom: 60px !important;
     }
-    
+
     .hero-content p {
         font-size: 1rem !important;
     }
 
     /* Feature Highlights */
     .features-section-modern {
-        transform: none; /* Remove negative margin effect on mobile */
+        transform: none;
         margin-bottom: 0;
         padding: 2rem 1.5rem;
     }
-    
+
     .grid.col-1.md\:col-3 {
         grid-template-columns: 1fr !important;
     }
 
     /* Cards & Grids */
-    .card-grid, .why-grid-premium, .team-grid-modern {
-        grid-template-columns: 1fr; /* Force single column */
+    .card-grid,
+    .why-grid-premium,
+    .team-grid-modern {
+        grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
-    .team-card, .team-member-card {
+
+    .team-card,
+    .team-member-card {
         width: 100%;
         max-width: none;
     }
@@ -2489,62 +2530,56 @@ details[open] summary.faq-summary::after {
     .mission-split {
         grid-template-columns: 1fr;
         display: flex;
-        flex-direction: column-reverse; /* Text on top, image below? Or Image on top? 
-                                          Usually Image top or bottom. Let's do Image Top (column) 
-                                          or keep normal flow.
-                                          Actually, column-reverse puts slideshow (left in desktop) at bottom.
-                                          Let's do flex-direction: column. 
-                                          Slideshow is first child.
-                                       */
-        flex-direction: column; 
+        flex-direction: column;
         gap: 2rem;
     }
-    
+
     .mission-slideshow {
         width: 100%;
         margin-left: 0;
         margin-right: 0;
-        aspect-ratio: 16/9; /* Maintain ratio */
+        aspect-ratio: 16/9;
     }
-    
+
     .mission-glass-panel {
         margin-right: 0;
         padding: 1.5rem;
     }
-    
+
     /* Footer */
     .footer-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
         text-align: center;
     }
-    
+
     .footer-col {
         align-items: center;
     }
-    
+
     .footer-logo a {
         justify-content: center;
     }
-    
+
     .footer-email {
         justify-content: center;
     }
-    
+
     .site-footer-modern {
         padding-top: 3rem;
     }
 
     /* Dashboard / Analyzer */
-    .input-section, .results-section {
+    .input-section,
+    .results-section {
         width: 100%;
         max-width: 100%;
     }
-    
+
     .dashboard-grid {
         flex-direction: column;
     }
-    
+
     .dashboard-grid.active-analysis .results-section {
         transform: none;
         width: 100%;
@@ -2554,21 +2589,30 @@ details[open] summary.faq-summary::after {
 }
 
 @media (max-width: 480px) {
-    h1, .hero-content h1 {
+
+    h1,
+    .hero-content h1 {
         font-size: 2rem !important;
     }
-    
+
     .btn-primary {
-        width: 100%; /* Full width buttons on very small screens */
+        width: 100%;
         justify-content: center;
         display: flex;
     }
-    
+
     .hero-content .btn-primary {
-        padding: 1rem !important; /* Slightly smaller padding */
+        padding: 1rem !important;
     }
-    
+
     .why-panel {
         padding: 2rem 1rem;
     }
+}
+
+/* Helper for disabling scroll */
+body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }

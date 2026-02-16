@@ -1071,6 +1071,7 @@ async function downloadReport() {
 function toggleMobileMenu() {
     const navLinks = document.getElementById('navLinks');
     navLinks.classList.toggle('active');
+    document.body.classList.toggle('no-scroll');
 }
 
 // Close mobile menu when a link is clicked
@@ -1080,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
+                document.body.classList.remove('no-scroll');
             });
         });
     }
