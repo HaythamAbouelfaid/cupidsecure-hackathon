@@ -2,88 +2,93 @@
 
 **Built at HackFax × PatriotHacks 2026 | George Mason University**
 
-By **Haytham Abouelfaid** & **Aliza Ahmad**
+### 👥 The Team
+- **Haytham Abouelfaid** - Full Stack Developer
+- **Aliza Ahmed** - Frontend & UI/UX Designer
+- **Hiba Basharat** - Data Analyst & Scam Research
+
+---
 
 ## 🎯 The Problem
-
-Romance scams cost Americans **$1.3 billion** in 2023. The average victim loses **$50,000**. 80% of victims never report due to shame. Existing dating platforms offer **ZERO fraud protection**.
+Romance scams are a devastating form of fraud that cost victims over **$1.3 billion** in reported losses in 2023 alone. Beyond the financial impact, these scams cause deep emotional trauma, with many victims never reporting the crime due to shame and social stigma. Current dating platforms often lack proactive, real-time tools to help users identify deceptive patterns before it's too late.
 
 ## 💡 Our Solution
-
-CupidSecure is an AI-powered platform that detects romance scams in real-time using:
-
-- **Behavioral Analysis** - Pattern detection engine analyzing conversation dynamics
-- **Financial Risk Scoring** - Instant risk assessment for money requests
-- **Automated Alerts** - SOAR-style response system with real-time notifications
-- **Threat Intelligence** - Powered by FBI IC3 data and real-world scam indicators
+CupidSecure serves as an **AI Copilot for Romantic Safety**, designed to detect fraud and manipulative tactics before any financial loss occur. By leveraging advanced Large Language Models, CupidSecure analyzes conversation dynamics, flags high-risk financial requests, and provides a safe "Practice Mode" to train users on identifying red flags in a simulated environment.
 
 ## 🚀 Features
 
-### 1. Conversation Analyzer
-- Upload or paste conversation transcripts
-- AI-powered scam pattern detection
-- Risk scoring (0-100 scale)
-- Actionable insights and recommendations
+### 🔍 Conversation Analyzer
+- **Text & Screenshot Support:** Paste chat logs or upload screenshots of your conversations for immediate analysis.
+- **Sentiment & Pattern Recognition:** Detects "love bombing," rapid escalation, and inconsistent or rehearsed scripts.
+- **Risk Scoring:** Generates a comprehensive risk report with a 0-100 severity score.
 
-### 2. Financial Risk Calculator
-- Calculate risk for any money request
-- Factors: amount, payment method, relationship duration, reason
-- Instant recommendation: send or don't send
+### 💰 Financial Request Check
+- **Money Request Analysis:** Evaluates requests for money, gift cards, or crypto investments.
+- **Evidence-Based Verdicts:** Provides a clear "Safe" or "Dangerous" verdict based on relationship duration and payment methods.
+- **Protect Your Assets:** specifically flags untraceable payment methods like Western Union or gift cards.
 
-### 3. Real-Time Dashboard
-- Platform statistics and impact metrics
-- Common scam patterns library
-- Educational resources
+### 🎮 Practice Mode (Scammer Simulator)
+- **Interactive Scenarios:** Chat with a simulated scammer (Military Sgt, Oil Rig Engineer, Overseas Student) in a safe sandbox.
+- **Red Flag Identification:** Real-time feedback helps you spot manipulative tactics as they happen.
+- **Educational Guidance:** Learn the psychology behind romance scams through immersive roleplay.
 
-## 🛠️ Tech Stack
+### � Risk Dashboard
+- **Threat Intelligence:** Stay updated with global scam trends, high-risk hotspots, and common scam vectors.
+- **Financial Impact Tracking:** Visualize the scale of romance scams across different demographics.
+- **Enterprise Insights:** A high-level overview of fraudulent activity types (Crypto, Romance, Phishing).
 
-**Backend:**
-- Python 3.8+
-- Flask web framework
-- JSON-based pattern matching
+### 🤖 Cupid AI (Embedded Assistant)
+- **Always Available:** A floating, draggable AI assistant present on every page to answer safety questions.
+- **Image Analysis:** Drag and drop screenshots directly into the chat for instant feedback.
+- **Context-Aware Suggestions:** Provides smart follow-up questions based on your current conversation or dashboard view.
 
-**Frontend:**
-- HTML5/CSS3
-- Vanilla JavaScript
-- Responsive design
+## �️ Tech Stack
 
-**Detection Engine:**
-- Custom scam pattern algorithm
-- 6 behavioral indicators
-- 4 financial red flags
-- Weighted risk scoring system
+- **Backend:** Python, Flask, Jinja2
+- **Frontend:** HTML5, CSS3 (Vanilla + Modern Design Tokens), JavaScript (Modern ES6+)
+- **AI & ML:** Gemini 2.0 Flash (via OpenRouter API), Sentiment Analysis, Image Analysis (Multimodal AI)
+- **Data Visualization:** Chart.js, FontAwesome, Google Fonts
+- **Other:** GitHub for version control, Dotenv for secure configuration
 
-## 📊 Detection Patterns
-
-**Behavioral Indicators:**
-1. Quick relationship escalation ("soulmate", "love you" within days)
-2. Direct financial requests (money, help, emergency)
-3. Crisis scenarios (accident, hospital, customs)
-4. Location mismatches (overseas, military, oil rig)
-5. Avoidance behavior (can't video call, camera broken)
-6. Investment schemes (crypto, trading, "guaranteed" returns)
-
-**Financial Red Flags:**
-1. Cryptocurrency requests (HIGH)
-2. Gift card requests (CRITICAL)
-3. Wire transfers (HIGH)
-4. Emergency scenarios (HIGH)
+## 📊 Detection Approach
+CupidSecure moves beyond simple keyword matching by combining:
+- **LLM-Based Semantics:** Powered by **Gemini 2.0 Flash** to understand the nuance, tone, and manipulative intent behind messages.
+- **Financial Heuristics:** Real-time calculation of risk based on amount, relationship maturity, and payment method traceability.
+- **Categorization of Tactics:** Mapping behaviors to known scam categories like "The Military Hero," "The Emergency Accident," or "The Crypto Expert."
 
 ## 🏃 Quick Start
 
 ### Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/cupidsecure.git
-cd cupidsecure
+# 1. Clone the repository
+git clone https://github.com/HaythamAbouelfaid/cupidsecure-hackathon.git
+cd cupidsecure-hackathon
 
-# Create virtual environment
+# 2. Set up environment variables
+# Create a .env file and add your OpenRouter API Key
+echo "OPENROUTER_API_KEY=your_key_here" > .env
+
+# 3. Create and activate virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
+# 4. Install dependencies
 pip install -r requirements.txt
 
-# Run the application
+# 5. Launch the platform
 python app.py
+```
+
+Open your browser to `http://localhost:5000` to start exploring!
+
+## 📸 Screenshots
+*(Coming Soon - Screenshots of the following views)*
+
+- **Homepage Hero:** Modern, sleek landing page showcasing our mission.
+- **Conversation Analyzer:** The multimodal upload and analysis interface.
+- **Practice Mode:** Interactive chat with the Scammer Simulator.
+- **Risk Dashboard:** Global threat intelligence and trend tracking.
+
+---
+Built with ❤️ by the CupidSecure Team at **HackFax × PatriotHacks 2026**.
