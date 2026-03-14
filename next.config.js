@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
+    const isDev = process.env.NODE_ENV !== 'production';
+    const apiUrl = isDev ? 'http://127.0.0.1:5001' : '/api/index';
+    
     return [
       {
         source: '/:path*',
@@ -11,31 +14,31 @@ const nextConfig = {
                 value: '^(?!.*text/html).*$'
             }
         ],
-        destination: 'http://127.0.0.1:5001/:path*', // Proxy API/Non-HTML requests directly down to Flask
+        destination: `${apiUrl}/:path*`, // Proxy API/Non-HTML requests directly down to Flask
       },
       {
         source: '/dashboard',
-        destination: 'http://127.0.0.1:5001/dashboard',
+        destination: `${apiUrl}/dashboard`,
       },
       {
         source: '/enterprise-dashboard',
-        destination: 'http://127.0.0.1:5001/enterprise-dashboard',
+        destination: `${apiUrl}/enterprise-dashboard`,
       },
       {
         source: '/analyze',
-        destination: 'http://127.0.0.1:5001/analyze',
+        destination: `${apiUrl}/analyze`,
       },
       {
         source: '/simulator',
-        destination: 'http://127.0.0.1:5001/simulator',
+        destination: `${apiUrl}/simulator`,
       },
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:5001/api/:path*',
+        destination: `${apiUrl}/api/:path*`, // Prevent collision with next api routes if any 
       },
       {
         source: '/',
-        destination: 'http://127.0.0.1:5001/',
+        destination: `${apiUrl}/`,
       }
     ]
   }

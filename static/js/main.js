@@ -1447,7 +1447,7 @@ function showV2ChangelogModal() {
 
     // Create Modal Card
     const modal = document.createElement('div');
-    modal.style.cssText = "background: #1c0816; border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 16px; padding: 2.5rem 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(236,72,153,0.15); transform: translateY(20px); transition: transform 0.3s ease; color: white; display: flex; flex-direction: column; gap: 1.5rem;";
+    modal.style.cssText = "background: #1c0816; border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 16px; padding: 2.5rem 3rem; max-width: 900px; width: 100%; box-shadow: 0 0 40px rgba(236,72,153,0.15); transform: translateY(20px); transition: transform 0.3s ease; color: white; display: flex; flex-direction: column; gap: 1.5rem;";
 
     modal.innerHTML = `
         <div style="text-align: center;">
@@ -1455,9 +1455,9 @@ function showV2ChangelogModal() {
             <h2 style="font-size: 1.8rem; margin: 0; background: linear-gradient(135deg, #ec4899, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">What's New in CupidSecure V2.0 🎉</h2>
         </div>
         
-        <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.95rem; line-height: 1.5;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; font-size: 0.95rem; line-height: 1.4;">
             <div>
-                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-lock" style="width: 25px;"></i> User Accounts & Authentication</h3>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-lock" style="width: 25px;"></i> User Accounts & Auth</h3>
                 <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
                     <li>Create an account with email or Google sign-in</li>
                     <li>Save and track your conversation analyses over time</li>
@@ -1468,18 +1468,18 @@ function showV2ChangelogModal() {
             <div>
                 <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-chart-line" style="width: 25px;"></i> Live Dashboard Data</h3>
                 <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
-                    <li>Real-time threat metrics updated every 60 seconds</li>
+                    <li>Real-time threat metrics updated continuously</li>
                     <li>Weekly trend charts showing scam activity patterns</li>
                     <li>Geographic hotspots showing where scammers operate</li>
                 </ul>
             </div>
             
             <div>
-                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-history" style="width: 25px;"></i> Conversation History Sidebar</h3>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-history" style="width: 25px;"></i> History Sidebar</h3>
                 <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
-                    <li>ChatGPT-style sidebar showing all your past analyses</li>
+                    <li>ChatGPT-style sidebar with past analyses</li>
                     <li>Click any analysis to review risk scores and tactics</li>
-                    <li>Track patterns across multiple conversations</li>
+                    <li>Track patterns across multiple chats</li>
                 </ul>
             </div>
 
@@ -1488,7 +1488,7 @@ function showV2ChangelogModal() {
                 <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
                     <li>Visual heatmap showing high-risk states</li>
                     <li>Hover for detailed regional statistics</li>
-                    <li>See where romance scammers are most active</li>
+                    <li>See where romance scammers are active</li>
                 </ul>
             </div>
 
