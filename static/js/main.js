@@ -112,6 +112,7 @@ function handleDbImage(file) {
         document.getElementById('dbPreviewImg').src = e.target.result;
         document.getElementById('uploadPlaceholder').style.display = 'none';
         document.getElementById('uploadPreview').style.display = 'block';
+        document.getElementById('financialResults').style.display = 'none';
 
         // Hide Text/Message Inputs when Image is present
         const messagesList = document.getElementById('messagesList');
@@ -275,6 +276,65 @@ async function analyzeConversation() {
         if (loadingOverlay) loadingOverlay.classList.remove('active');
 
         displayResults(textResults);
+
+        // --- SUPABASE SAVE LOGIC ---
+        if (window.supabaseClient) {
+            window.supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+                if (session) {
+                    let textSnippet = 'Screenshot Analysis';
+                    let fullText = null;
+                    if (messages.length > 0) {
+                        textSnippet = messages[0].text.substring(0, 40);
+                        fullText = messages.map(m => `${m.sender}: ${m.text}`).join('\n');
+                    }
+                    
+                    let screenshotUrl = null;
+                    if (hasImage && imgElement && imgElement.src) {
+                        try {
+                            const dataUrl = imgElement.src;
+                            const arr = dataUrl.split(',');
+                            const mime = arr[0].match(/:(.*?);/)[1];
+                            const bstr = atob(arr[1]);
+                            let n = bstr.length;
+                            const u8arr = new Uint8Array(n);
+                            while(n--){
+                                u8arr[n] = bstr.charCodeAt(n);
+                            }
+                            const ext = mime.split('/')[1] || 'png';
+                            const file = new File([u8arr], `screenshot-${Date.now()}.${ext}`, {type:mime});
+                            
+                            const { data, error } = await window.supabaseClient.storage
+                                .from('conversation-screenshots')
+                                .upload(`${session.user.id}/${file.name}`, file);
+                                
+                            if (!error && data) {
+                                const { data: urlData } = window.supabaseClient.storage
+                                    .from('conversation-screenshots')
+                                    .getPublicUrl(data.path);
+                                screenshotUrl = urlData.publicUrl;
+                            }
+                        } catch (e) {
+                            console.error("Error uploading screenshot:", e);
+                        }
+                    }
+
+                    window.supabaseClient.from('conversation_analyses').insert({
+                        user_id: session.user.id,
+                        text_snippet: textSnippet,
+                        conversation_text: fullText,
+                        screenshot_url: screenshotUrl,
+                        risk_score: textResults.risk_score || 0,
+                        detected_tactics: textResults.detected_patterns || [],
+                        analysis_result: textResults,
+                        analysis_data: textResults
+                    }).then(({ error }) => {
+                        if (error) console.error("Error saving analysis:", error);
+                        else loadConversationHistory(); // Reload sidebar
+                    });
+                }
+            });
+        }
+        // ---------------------------
 
         // Auto-pop AI Assistant for simplified explanation
         setTimeout(() => {
@@ -1084,5 +1144,407 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('no-scroll');
             });
         });
+    }
+});
+
+// Initialization for Supabase and Sidebar
+document.addEventListener('DOMContentLoaded', async () => {
+    const isProtectedRoute = window.location.pathname.startsWith('/dashboard') || window.location.pathname.startsWith('/enterprise') || window.location.pathname.startsWith('/settings');
+    const overlay = document.getElementById('authLoadingOverlay');
+
+    if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase) {
+        window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        if (session) {
+            const sidebar = document.getElementById('historySidebar');
+            if (sidebar) {
+                // Determine initial state based on screen size
+                if (window.innerWidth <= 768) {
+                    sidebar.style.display = 'none';
+                    sidebarOpen = false;
+                } else {
+                    sidebar.style.display = 'flex';
+                }
+            }
+            window.currentUserId = session.user.id;
+            loadConversationHistory();
+            // Header icon injection for index.html / global layout
+            const authContainer = document.getElementById('authHeaderContainer');
+            if (authContainer) {
+                authContainer.innerHTML = `
+                    <div class="auth-dropdown-container">
+                        <div class="user-avatar-btn" onclick="toggleAuthDropdown(event)">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="auth-dropdown-menu" id="authDropdownMenu">
+                            <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" class="danger-text" onclick="window.supabaseClient.auth.signOut().then(() => window.location.reload())"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const dashboardBtn = document.getElementById('launchDashboardBtn');
+            if (dashboardBtn) {
+                dashboardBtn.style.display = 'inline-block';
+            }
+
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 500);
+            }
+        } else {
+            // Setup for unauthenticated experience
+            const sidebar = document.getElementById('historySidebar');
+            const banner = document.getElementById('loggedOutBanner');
+            if (sidebar) sidebar.style.display = 'none';
+            if (banner) banner.style.display = 'flex';
+            
+            const dashboardBtn = document.getElementById('launchDashboardBtn');
+            if (dashboardBtn) {
+                dashboardBtn.style.display = 'inline-block';
+            }
+            
+            if (isProtectedRoute) {
+                // If they are on a protected route, redirect!
+                window.location.href = `/signin?redirect=${encodeURIComponent(window.location.pathname)}`;
+            } else {
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.remove(), 500);
+                }
+            }
+        }
+    } else {
+         // No Supabase integration configured
+         if (isProtectedRoute) {
+             window.location.href = `/signin?redirect=${encodeURIComponent(window.location.pathname)}`;
+         } else {
+             if (overlay) overlay.remove();
+         }
+    }
+});
+
+async function loadConversationHistory() {
+    if (!window.supabaseClient || !window.currentUserId) return;
+    
+    const { data, error } = await window.supabaseClient
+        .from('conversation_analyses')
+        .select('*')
+        .eq('user_id', window.currentUserId)
+        .order('created_at', { ascending: false });
+        
+    if (error) {
+        console.error("Error loading history:", error);
+        return;
+    }
+    
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    historyList.innerHTML = '';
+    
+    data.forEach(item => {
+        let riskColor = '#10b981'; // green
+        if (item.risk_score >= 70) riskColor = '#ef4444'; // red
+        else if (item.risk_score >= 30) riskColor = '#f59e0b'; // yellow
+        
+        // Relative time formatter
+        const date = new Date(item.created_at);
+        const diffMs = Date.now() - date.getTime();
+        const diffDays = Math.floor(diffMs / 86400000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        let timeStr = "Today";
+        if (diffDays > 0) timeStr = `${diffDays} days ago`;
+        else if (diffHours > 0) timeStr = `${diffHours} hrs ago`;
+
+        let textPreview = item.conversation_text || item.text_snippet || "Screenshot Analysis";
+        
+        let thumbnailHtml = '';
+        if (item.screenshot_url) {
+            thumbnailHtml = `<img src="${item.screenshot_url}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--glass-border); flex-shrink: 0;" />`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.setAttribute('data-search', textPreview);
+        div.style.cssText = "padding: 0.75rem; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative;";
+        div.onmouseover = () => div.style.background = 'rgba(236,72,153,0.1)';
+        div.onmouseout = () => div.style.background = 'rgba(0,0,0,0.2)';
+        
+        // Favorite functionality logic
+        const favKey = `cupid_fav_${window.currentUserId}`;
+        let favorites = JSON.parse(localStorage.getItem(favKey) || '[]');
+        const isFav = favorites.includes(item.id);
+        const starColor = isFav ? '#f59e0b' : 'var(--text-secondary)';
+
+        div.innerHTML = `
+            <div style="display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.5rem;" onclick="loadPastAnalysisById('${item.id}')">
+                ${thumbnailHtml}
+                <div style="font-size: 0.85rem; color: #fff; word-break: break-all; flex-grow: 1;">
+                    "${textPreview.substring(0, 40)}${textPreview.length >= 40 ? '...' : ''}"
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: ${riskColor}; color: white; font-weight: bold;">Risk: ${item.risk_score}</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 0.7rem; color: var(--text-secondary);">${timeStr}</span>
+                    <button class="fav-btn" onclick="toggleFavorite(event, '${item.id}')" style="background: none; border: none; cursor: pointer; padding: 0;">
+                        <i class="fas fa-star" style="color: ${starColor}; font-size: 0.85rem; transition: color 0.2s;"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Store raw item attached to window to avoid inline payload limits
+        if (!window.cachedAnalyses) window.cachedAnalyses = {};
+        window.cachedAnalyses[item.id] = item;
+        
+        historyList.appendChild(div);
+    });
+}
+
+function loadPastAnalysisById(id) {
+    if (window.cachedAnalyses && window.cachedAnalyses[id]) {
+        loadPastAnalysis(window.cachedAnalyses[id]);
+    }
+}
+
+function toggleFavorite(e, id) {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const icon = btn.querySelector('i');
+    
+    const favKey = `cupid_fav_${window.currentUserId}`;
+    let favorites = JSON.parse(localStorage.getItem(favKey) || '[]');
+    
+    if (favorites.includes(id)) {
+        favorites = favorites.filter(favId => favId !== id);
+        icon.style.color = 'var(--text-secondary)';
+    } else {
+        favorites.push(id);
+        icon.style.color = '#f59e0b';
+    }
+    
+    localStorage.setItem(favKey, JSON.stringify(favorites));
+}
+
+let sidebarOpen = true;
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('historySidebar');
+    const openBtn = document.getElementById('openSidebarBtn');
+    
+    if (!sidebar) return;
+
+    // For Mobile
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('mobile-open');
+        return;
+    }
+
+    // For Desktop
+    sidebarOpen = !sidebarOpen;
+    if (sidebarOpen) {
+        sidebar.style.marginLeft = '0px';
+        if (openBtn) openBtn.style.display = 'none';
+    } else {
+        sidebar.style.marginLeft = '-280px';
+        if (openBtn) openBtn.style.display = 'flex';
+    }
+}
+
+function filterHistory() {
+    const searchInput = document.getElementById('historySearch');
+    if (!searchInput) return;
+    
+    const query = searchInput.value.toLowerCase();
+    const items = document.querySelectorAll('.history-item');
+    
+    items.forEach(item => {
+        const text = item.getAttribute('data-search') || '';
+        if (text.toLowerCase().includes(query)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function loadPastAnalysis(item) {
+    if (!item.analysis_data) return;
+    
+    // Animate dashboard
+    const dashboardGrid = document.querySelector('.dashboard-grid');
+    if (dashboardGrid) dashboardGrid.classList.add('active-analysis');
+    
+    // Populate context
+    clearImage();
+    const messagesList = document.getElementById('messagesList');
+    if (messagesList) {
+        messagesList.style.display = 'block';
+        messagesList.innerHTML = '';
+        if (item.conversation_text) {
+             addMessage('Previous', item.conversation_text);
+        } else {
+             addMessage('Previous', item.text_snippet + '...');
+        }
+    }
+
+    if (item.screenshot_url) {
+        document.getElementById('dbPreviewImg').src = item.screenshot_url;
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+        document.getElementById('uploadPreview').style.display = 'block';
+        
+        // Hide Text/Message Inputs when Image is present
+        const addMessageBtn = document.querySelector('button[onclick="addMessage(\\\'Them\\\', \\\'\\\')"]');
+        if (messagesList) messagesList.style.display = 'none';
+        if (addMessageBtn) addMessageBtn.style.display = 'none';
+    }
+
+    displayResults(item.analysis_data);
+}
+
+function newAnalysis() {
+    clearImage();
+    const messagesList = document.getElementById('messagesList');
+    if (messagesList) {
+        messagesList.style.display = 'block';
+        messagesList.innerHTML = '';
+        addMessage('Them', '');
+    }
+    
+    // Clear calculator inputs
+    const calcFields = ['calcAmount', 'calcReason', 'calcDays'];
+    calcFields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.value = '';
+    });
+    
+    // Hide results panes
+    const resultsDiv = document.getElementById('results');
+    if (resultsDiv) resultsDiv.style.display = 'none';
+    
+    const finResultsDiv = document.getElementById('financialResults');
+    if (finResultsDiv) finResultsDiv.style.display = 'none';
+    
+    // Hide heatmap if present
+    const timelineSection = document.getElementById('timelineSection');
+    if (timelineSection) timelineSection.style.display = 'none';
+    
+    const dashboardGrid = document.querySelector('.dashboard-grid');
+    if (dashboardGrid) dashboardGrid.classList.remove('active-analysis');
+}
+
+// Global V2 Changelog Popup Logic
+function showV2ChangelogModal() {
+    if (localStorage.getItem("cupidsecure_last_seen_version") === "v2.0") return;
+
+    // Create backdrop overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 1rem;";
+
+    // Create Modal Card
+    const modal = document.createElement('div');
+    modal.style.cssText = "background: #1c0816; border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 16px; padding: 2.5rem 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 40px rgba(236,72,153,0.15); transform: translateY(20px); transition: transform 0.3s ease; color: white; display: flex; flex-direction: column; gap: 1.5rem;";
+
+    modal.innerHTML = `
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; color: #ec4899; margin-bottom: 0.5rem;"><i class="fas fa-heart-crack"></i></div>
+            <h2 style="font-size: 1.8rem; margin: 0; background: linear-gradient(135deg, #ec4899, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">What's New in CupidSecure V2.0 🎉</h2>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.95rem; line-height: 1.5;">
+            <div>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-lock" style="width: 25px;"></i> User Accounts & Authentication</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
+                    <li>Create an account with email or Google sign-in</li>
+                    <li>Save and track your conversation analyses over time</li>
+                    <li>Access analysis history from any device</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-chart-line" style="width: 25px;"></i> Live Dashboard Data</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
+                    <li>Real-time threat metrics updated every 60 seconds</li>
+                    <li>Weekly trend charts showing scam activity patterns</li>
+                    <li>Geographic hotspots showing where scammers operate</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-history" style="width: 25px;"></i> Conversation History Sidebar</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
+                    <li>ChatGPT-style sidebar showing all your past analyses</li>
+                    <li>Click any analysis to review risk scores and tactics</li>
+                    <li>Track patterns across multiple conversations</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-map-marked-alt" style="width: 25px;"></i> Interactive US Scam Map</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
+                    <li>Visual heatmap showing high-risk states</li>
+                    <li>Hover for detailed regional statistics</li>
+                    <li>See where romance scammers are most active</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 style="color: #ec4899; margin-bottom: 0.25rem; font-size: 1.1rem;"><i class="fas fa-cog" style="width: 25px;"></i> AI Preferences</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #d1d5db;">
+                    <li>Customize how the AI talks to you (tone & style)</li>
+                    <li>Settings apply to analyzer and practice mode</li>
+                    <li>Tailor the experience to your needs</li>
+                </ul>
+            </div>
+        </div>
+
+        <button id="closeChangelogBtn" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #ec4899, #9333ea); border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; margin-top: 1rem;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            Let's Go!
+        </button>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Trigger animation slightly after DOM insertion
+    requestAnimationFrame(() => {
+        overlay.style.opacity = "1";
+        modal.style.transform = "translateY(0)";
+    });
+
+    document.getElementById('closeChangelogBtn').addEventListener('click', () => {
+        overlay.style.opacity = "0";
+        modal.style.transform = "translateY(20px)";
+        
+        // Wait for fade-out animation to finish
+        setTimeout(() => {
+            overlay.remove();
+            localStorage.setItem("cupidsecure_last_seen_version", "v2.0");
+        }, 300);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', showV2ChangelogModal);
+
+function toggleAuthDropdown(e) {
+    if(e) e.stopPropagation();
+    const menu = document.getElementById('authDropdownMenu');
+    if(menu) {
+        menu.classList.toggle('show');
+    }
+}
+
+// Close Dropdown on global click
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('authDropdownMenu');
+    const container = document.querySelector('.auth-dropdown-container');
+    if (menu && menu.classList.contains('show')) {
+        if (container && !container.contains(e.target)) {
+            menu.classList.remove('show');
+        }
     }
 });

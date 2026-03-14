@@ -27,8 +27,13 @@
             <a href="{{ url_for('simulator') }}" class="nav-btn-highlight">Practice Mode</a>
             <a href="{{ url_for('enterprise_dashboard') }}" class="nav-btn-outline">Enterprise</a>
         </nav>
-        <div class="header-cta">
-            <a href="{{ url_for('dashboard') }}" class="btn-primary">Launch Dashboard</a>
+        <div class="header-cta" style="display: flex; gap: 1rem; align-items: center;">
+            <a href="{{ url_for('dashboard') }}" class="btn-primary" style="display: none;" id="launchDashboardBtn">Launch Dashboard</a>
+            
+            <!-- Auth Container (managed by main.js) -->
+            <div id="authHeaderContainer">
+                <a href="/signup" class="btn-signup-animated">Sign Up</a>
+            </div>
         </div>
     </header>
 

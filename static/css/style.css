@@ -243,6 +243,114 @@ header {
     /* Brighter gradient */
 }
 
+/* Animated Sign Up Button */
+.btn-signup-animated {
+    background: linear-gradient(270deg, #ec4899, #8b5cf6, #ec4899);
+    background-size: 200% auto;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+    transition: all 0.3s ease;
+    animation: gradientFlow 3s ease infinite;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.btn-signup-animated:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* User Avatar & Dropdown */
+.auth-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-avatar-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    background-size: cover;
+    background-position: center;
+}
+
+.user-avatar-btn:hover {
+    transform: translateY(-2px);
+    border-color: white;
+    box-shadow: 0 6px 15px rgba(236, 72, 153, 0.4);
+}
+
+.auth-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background: rgba(13, 1, 7, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    display: none;
+    flex-direction: column;
+    min-width: 160px;
+    overflow: hidden;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.auth-dropdown-menu.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.auth-dropdown-menu a {
+    padding: 0.75rem 1rem;
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.auth-dropdown-menu a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.auth-dropdown-menu a.danger-text {
+    color: var(--danger);
+}
+
 /* Analysis Layout */
 /* Analysis Layout handled in dynamic section below */
 
@@ -1414,6 +1522,7 @@ section {
     min-height: auto !important;
     padding-top: 80px !important;
     padding-bottom: 120px !important;
+    margin-bottom: 0 !important;
     position: relative;
     z-index: 10;
     overflow: hidden;
@@ -1654,9 +1763,9 @@ section {
     padding: 0;
     position: relative;
     z-index: 20;
-    /* Move cards up to sit on the hero grid */
-    transform: translateY(-80px);
-    margin-bottom: -80px;
+    /* Space cards out nicely below hero */
+    margin-top: 80px;
+    margin-bottom: 60px;
 }
 
 .feature-highlight-card {
@@ -2495,6 +2604,7 @@ details[open] summary.faq-summary::after {
         padding-top: 40px !important;
         /* Less padding since header is sticky/smaller */
         padding-bottom: 60px !important;
+        margin-bottom: 0 !important;
     }
 
     .hero-content p {
@@ -2503,8 +2613,8 @@ details[open] summary.faq-summary::after {
 
     /* Feature Highlights */
     .features-section-modern {
-        transform: none;
-        margin-bottom: 0;
+        margin-top: 60px;
+        margin-bottom: 40px;
         padding: 2rem 1.5rem;
     }
 

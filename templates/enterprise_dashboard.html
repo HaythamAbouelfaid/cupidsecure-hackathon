@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
     <style>
         .enterprise-container {
             max-width: 1400px;
@@ -37,6 +39,7 @@
             font-weight: 800;
             margin: 0.5rem 0;
             background: var(--primary-gradient);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -77,10 +80,24 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        .state-path {
+            cursor: pointer;
+            outline: none;
+        }
+        .state-path:hover {
+            fill-opacity: 0.8;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Auth Route Protection Overlay -->
+    <div id="authLoadingOverlay" style="position: fixed; inset: 0; background-color: #0d0107; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s;">
+        <div style="color: #ec4899; font-size: 1.25rem; font-weight: bold; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">
+            Loading...
+        </div>
+    </div>
     <header>
         <div class="logo">
             <a href="{{ url_for('index') }}">
@@ -94,8 +111,9 @@
             <a href="{{ url_for('index') }}">Home</a>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
         </nav>
-        <div class="header-cta">
+        <div class="header-cta" style="display: flex; flex-direction: column; align-items: flex-end;">
             <span class="dashboard-badge">Enterprise Console</span>
+            <span id="lastUpdated" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Last updated: Just now</span>
         </div>
     </header>
 
@@ -149,11 +167,13 @@
                     <p style="color: var(--text-secondary); margin-bottom: 1rem;">
                         Top regions with reported high-risk romance scam activity based on IP analysis and user reports.
                     </p>
-                    <!-- Placeholder for Map Visual -->
-                    <div
-                        style="background: rgba(255,255,255,0.05); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
-                        <i class="fas fa-map-marked-alt" style="font-size: 3rem; margin-right: 1rem;"></i> [Interactive
-                        Map Module]
+                    <!-- Interactive Map Module -->
+                    <div id="usMapContainer"
+                        style="background: rgba(0,0,0,0.2); height: 320px; border-radius: 8px; position: relative; overflow: hidden; border: 1px solid var(--glass-border);">
+                        <svg id="usMapSvg" width="100%" height="100%"></svg>
+                        <div id="mapTooltip"
+                            style="position: absolute; display: none; background: rgba(13, 1, 7, 0.95); border: 1px solid var(--primary-color); padding: 12px; border-radius: 8px; color: white; pointer-events: none; z-index: 10; font-size: 0.85rem; min-width: 180px; box-shadow: 0 4px 15px rgba(236,72,153,0.2);">
+                        </div>
                     </div>
                 </div>
                 <div id="geoList">
@@ -164,6 +184,22 @@
     </main>
 
     <script>
+        let trendChartInstance = null;
+        let typeChartInstance = null;
+        let lastUpdateTime = new Date();
+
+        function updateTimeAgo() {
+            const now = new Date();
+            const diffSeconds = Math.floor((now - lastUpdateTime) / 1000);
+            const el = document.getElementById('lastUpdated');
+            if (el) {
+                if (diffSeconds < 5) el.textContent = 'Last updated: Just now';
+                else el.textContent = `Last updated: ${diffSeconds} seconds ago`;
+            }
+        }
+
+        setInterval(updateTimeAgo, 5000); // UI update every 5 seconds
+
         // Fetch Data
         async function loadEnterpriseData() {
             try {
@@ -172,18 +208,22 @@
 
                 // Update Key Stats
                 document.getElementById('activeUsers').textContent = data.active_monitored_users.toLocaleString();
-
-                const totalRisk7d = data.weekly_trend.data.reduce((a, b) => a + b, 0);
-                document.getElementById('riskyConvos').textContent = totalRisk7d;
-
+                document.getElementById('riskyConvos').textContent = data.risky_convos.toLocaleString();
                 document.getElementById('lossPrevented').textContent = '$' + data.total_prevented.toLocaleString();
 
                 document.getElementById('avgRisk').textContent = data.avg_risk_score;
                 document.getElementById('avgRiskBar').style.width = data.avg_risk_score + '%';
-                if (data.avg_risk_score > 70) document.getElementById('avgRiskBar').style.background = '#ef4444';
+                if (data.avg_risk_score > 70) {
+                    document.getElementById('avgRiskBar').style.background = '#ef4444';
+                } else if (data.avg_risk_score > 30) {
+                    document.getElementById('avgRiskBar').style.background = '#f59e0b';
+                } else {
+                    document.getElementById('avgRiskBar').style.background = '#10b981';
+                }
 
                 // Chart: Trend
-                new Chart(document.getElementById('trendChart'), {
+                if (trendChartInstance) trendChartInstance.destroy();
+                trendChartInstance = new Chart(document.getElementById('trendChart'), {
                     type: 'line',
                     data: {
                         labels: data.weekly_trend.labels,
@@ -208,7 +248,8 @@
                 });
 
                 // Chart: Distribution
-                new Chart(document.getElementById('typeChart'), {
+                if (typeChartInstance) typeChartInstance.destroy();
+                typeChartInstance = new Chart(document.getElementById('typeChart'), {
                     type: 'doughnut',
                     data: {
                         labels: Object.keys(data.scam_types),
@@ -233,7 +274,7 @@
                     .sort(([, a], [, b]) => b - a)
                     .map(([state, count], index) => `
                         <div class="top-scam-row">
-                            <div style="display:flex; align-items:center gap:1rem;">
+                            <div style="display:flex; align-items:center; gap:1rem;">
                                 <span style="color:var(--text-secondary); width: 24px;">${index + 1}.</span>
                                 <strong>${state}</strong>
                             </div>
@@ -241,12 +282,117 @@
                         </div>
                     `).join('');
 
+                // Render / Update D3 Map
+                renderMap(data.geo_data);
+
+                // Update sync time
+                lastUpdateTime = new Date();
+                updateTimeAgo();
+
             } catch (e) {
                 console.error("Error loading enterprise stats:", e);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadEnterpriseData);
+        let mapRendered = false;
+        async function renderMap(geoData) {
+            if (!mapRendered) {
+                const width = 975;
+                const height = 610;
+
+                const svg = d3.select('#usMapSvg')
+                    .attr('viewBox', `0 0 ${width} ${height}`)
+                    .style('width', '100%')
+                    .style('height', '100%');
+
+                const g = svg.append('g');
+
+                try {
+                    const us = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json");
+                    const path = d3.geoPath();
+
+                    g.append("g")
+                        .selectAll("path")
+                        .data(topojson.feature(us, us.objects.states).features)
+                        .join("path")
+                        .attr("d", path)
+                        .attr("class", "state-path")
+                        .style("fill", "#1e293b")
+                        .style("stroke", "rgba(255,255,255,0.15)")
+                        .on("mouseover", showTooltip)
+                        .on("mousemove", moveTooltip)
+                        .on("mouseout", hideTooltip);
+
+                    mapRendered = true;
+                } catch (e) {
+                    console.error("Map rendering error:", e);
+                    return;
+                }
+            }
+
+            // V2 Dummy Tactics
+            const tactics = ["Pig Butchering", "Love Bombing", "Emergency Request", "Crypto Ask", "Fake Inheritance"];
+
+            // Update states with new data
+            d3.selectAll('.state-path').each(function (d) {
+                const stateName = d.properties.name;
+                const count = geoData[stateName] || 0;
+                
+                let color = "#1e293b"; // Gray (No Activity)
+                if (count > 100) color = "#991b1b"; // Dark Red
+                else if (count >= 50) color = "#f97316"; // Orange
+                else if (count > 0) color = "#eab308"; // Yellow
+
+                d3.select(this)
+                    .transition().duration(500)
+                    .style("fill", color);
+
+                // Attach geoData for tooltip
+                d3.select(this).property("stateData", {
+                    name: stateName,
+                    count: count,
+                    topTactic: count > 0 ? tactics[count % tactics.length] : "None"
+                });
+            });
+        }
+
+        function showTooltip(event, d) {
+            const data = d3.select(this).property("stateData");
+            if (!data) return;
+
+            const count = data.count || 0;
+            d3.select(this).style("stroke", "#ec4899").style("stroke-width", "2px");
+
+            const tooltip = d3.select("#mapTooltip");
+            tooltip.style("display", "block")
+                .html(`
+                    <strong style="color: #ec4899; font-size: 1.1rem;">${data.name}</strong><br>
+                    <div style="margin-top: 6px;">Flagged Convos: <strong>${count}</strong></div>
+                    ${count > 0 ? `<div style="margin-top: 4px; color: var(--text-secondary);">Top Tactic: <span style="color: white">${data.topTactic}</span></div>` : ''}
+               `);
+        }
+
+        function moveTooltip(event) {
+            const container = document.getElementById("usMapContainer").getBoundingClientRect();
+            let x = event.clientX - container.left + 15;
+            let y = event.clientY - container.top + 15;
+
+            // Optional bounds checking could go here for right edges
+            d3.select("#mapTooltip")
+                .style("left", x + "px")
+                .style("top", y + "px");
+        }
+
+        function hideTooltip(event, d) {
+            d3.select(this).style("stroke", "rgba(255,255,255,0.15)").style("stroke-width", "1px");
+            d3.select("#mapTooltip").style("display", "none");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEnterpriseData();
+            // Auto reload every 60 seconds
+            setInterval(loadEnterpriseData, 60000);
+        });
     </script>
     <!-- Floating Chat Button -->
     <div class="floating-chat-btn" onclick="toggleChat()">
@@ -285,6 +431,11 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        window.SUPABASE_URL = '{{ supabase_url }}';
+        window.SUPABASE_ANON_KEY = '{{ supabase_anon_key }}';
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         window.addEventListener('load', () => {

@@ -187,7 +187,9 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html',
+                           supabase_url=os.getenv('NEXT_PUBLIC_SUPABASE_URL', ''),
+                           supabase_anon_key=os.getenv('NEXT_PUBLIC_SUPABASE_ANON_KEY', ''))
 
 @app.route('/analyze')
 def analyze_page():
@@ -543,12 +545,23 @@ def simulator_chat():
     history = data.get('history', []) # list of {role: 'user/assistant', content: '...'}
     turn_count = data.get('count', 0)
     scam_type = data.get('scam_type', 'random') # military, crypto, etc.
+    preferences = data.get('preferences', {'tone': 'Professional', 'style': 'Detailed'})
     
     # Threshold for revealing tactics
     MAX_TURNS = 10 
     
     if turn_count >= MAX_TURNS:
         # Generate Reveal / Analysis
+        format_instruction = ""
+        if preferences['style'].lower() == 'concise':
+             format_instruction = "Use short bullet points with minimal extra text."
+        elif preferences['style'].lower() == 'detailed':
+             format_instruction = "Use full paragraph explanations with thorough context."
+        elif preferences['style'].lower() == 'bullet points':
+             format_instruction = "Use heavily structured bullet points for readability."
+             
+        tone_instruction = f"Maintain a strictly {preferences['tone']} tone."
+
         analysis_prompt = f"""
         Analyze the following conversation where you acted as a a romance scammer ({scam_type}).
         
@@ -560,7 +573,10 @@ def simulator_chat():
         2. Explain WHY these are red flags.
         3. Provide tips on what the user should have spotted earlier.
         
-        Format: Use Markdown for clarity (bullet points, bold text). Start with "Simulation Complete. Here is your analysis:".
+        Format Requirement: Start with "Simulation Complete. Here is your analysis:".
+        Formatting Style: {format_instruction}
+        Tone: {tone_instruction}
+        Use Markdown for clarity.
         """
         
         system_message = {"role": "system", "content": analysis_prompt}
@@ -582,7 +598,7 @@ def simulator_chat():
     }
     
     system_instruction = scammer_prompts.get(scam_type, scammer_prompts['random'])
-    system_instruction += "\nContext: This is a training simulation. The user is practicing spotting scams. Be realistic but slightly flawed so astute users can catch on. Keep responses under 2-3 sentences."
+    system_instruction += f"\nContext: This is a training simulation. The user is practicing spotting scams. Be realistic but slightly flawed so astute users can catch on. Keep responses under 2-3 sentences."
     
     messages = [{"role": "system", "content": system_instruction}] + history + [{"role": "user", "content": user_message}]
     
@@ -612,51 +628,108 @@ def generate_report():
     except Exception as e:
         return f"Error generating report: {str(e)}", 500
 
-# Enterprise / Threat Intel Routes
 @app.route('/enterprise-dashboard')
 def enterprise_dashboard():
-    return render_template('enterprise_dashboard.html')
+    import os
+    return render_template('enterprise_dashboard.html', 
+                           supabase_url=os.getenv('NEXT_PUBLIC_SUPABASE_URL'),
+                           supabase_anon_key=os.getenv('NEXT_PUBLIC_SUPABASE_ANON_KEY'))
 
 @app.route('/api/intel-stats')
 def intel_stats():
-    # Mock aggregated stats (pretend this comes from a database of thousands of scans)
-    import random
+    import requests
+    import os
+    from datetime import datetime, timedelta
     
-    # 1. High Risk Conversations (Last 7 Days)
-    # Generate a trend for the chart
-    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    daily_risks = [random.randint(15, 45) for _ in range(7)]
+    supabase_url = os.getenv('NEXT_PUBLIC_SUPABASE_URL')
+    supabase_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
     
-    # 2. Total Estimated Losses Prevented
-    # Sum of money requests flagged
-    total_prevented = random.randint(150000, 500000)
-    
-    # 3. Scam Type Breakdown
-    scam_types = {
-        'Crypto / Pig Butchering': 45,
-        'Military / Peacekeeping': 25,
-        'Oil Rig / Emergency': 15,
-        'Sugar Baby / Sugar Daddy': 10,
-        'Other': 5
+    if not supabase_url or not supabase_key:
+        return jsonify({'error': 'Supabase credentials missing on server'}), 500
+
+    headers = {
+        'apikey': supabase_key,
+        'Authorization': f'Bearer {supabase_key}',
+        'Content-Type': 'application/json'
     }
     
-    # 4. Geographic Heatmap (US States most affected)
-    # Top 5 states + counts
+    # Get analyses from last 7 days
+    seven_days_ago = (datetime.utcnow() - timedelta(days=7)).isoformat()
+    url = f"{supabase_url}/rest/v1/conversation_analyses?created_at=gte.{seven_days_ago}&select=*"
+    
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+             return jsonify({'error': response.text}), 500
+        data = response.json()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+        
+    active_users = len(set(row.get('user_id') for row in data if row.get('user_id')))
+    
+    risky_convos_total = 0
+    total_risk_score = 0
+    
+    daily_risks_dict = {}
+    for i in range(7):
+        ds = (datetime.utcnow() - timedelta(days=6-i)).strftime('%Y-%m-%d')
+        daily_risks_dict[ds] = 0
+        
+    tactic_counts = {}
+
+    for row in data:
+        score = row.get('risk_score', 0)
+        total_risk_score += score
+        
+        is_risky = score > 70
+        if is_risky:
+            risky_convos_total += 1
+            
+        created_at_str = row.get('created_at')
+        if created_at_str:
+            # Handle standard UTC string returned by Supabase
+            if '+' in created_at_str:
+                created_at_dt = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
+            else:
+                 created_at_dt = datetime.fromisoformat(created_at_str.replace('Z', ''))
+                 
+            day_str = created_at_dt.strftime('%Y-%m-%d')
+            if day_str in daily_risks_dict and is_risky:
+                daily_risks_dict[day_str] += 1
+            
+        analysis_data = row.get('analysis_data', {})
+        if analysis_data:
+            val = analysis_data.get('scam_classification', {}).get('type', 'Unknown')
+            tactic_counts[val] = tactic_counts.get(val, 0) + 1
+
+    avg_risk = total_risk_score // len(data) if data else 0
+    loss_prevented = risky_convos_total * 4400 
+    
+    sorted_days = sorted(daily_risks_dict.keys())
+    labels = [datetime.strptime(d, '%Y-%m-%d').strftime('%a') for d in sorted_days]
+    daily_risks = [daily_risks_dict[d] for d in sorted_days]
+    
+    sorted_tactics = dict(sorted(tactic_counts.items(), key=lambda item: item[1], reverse=True)[:5])
+    if not sorted_tactics:
+        sorted_tactics = {"No Data Yet": 1}
+
+    # Mock Data for Geolocation (Pending IP tracking)
     geo_data = {
-        'California': random.randint(300, 500),
-        'Texas': random.randint(200, 350),
-        'Florida': random.randint(150, 300),
-        'New York': random.randint(100, 250),
-        'Ohio': random.randint(50, 150)
+        'California': max(120, risky_convos_total * 2),
+        'Texas': max(85, risky_convos_total),
+        'Florida': 65,
+        'New York': 40,
+        'Ohio': 25
     }
-    
+
     return jsonify({
-        'weekly_trend': {'labels': days, 'data': daily_risks},
-        'total_prevented': total_prevented,
-        'scam_types': scam_types,
+        'weekly_trend': {'labels': labels, 'data': daily_risks},
+        'total_prevented': loss_prevented,
+        'scam_types': sorted_tactics,
         'geo_data': geo_data,
-        'active_monitored_users': random.randint(1200, 2000),
-        'avg_risk_score': random.randint(60, 85)
+        'active_monitored_users': active_users,
+        'avg_risk_score': avg_risk,
+        'risky_convos': risky_convos_total
     })
 
 if __name__ == '__main__':

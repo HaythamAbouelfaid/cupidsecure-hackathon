@@ -239,6 +239,26 @@
     <script>
         let turnCount = 0;
         let conversationHistory = []; // {role: 'assistant', content: '...'} or {role: 'user', content: '...'}
+        let userPrefs = { tone: 'Professional', style: 'Detailed' };
+
+        // Pull Preferences if Authenticated
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.supabaseClient) {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    const { data, error } = await window.supabaseClient
+                        .from('preferences')
+                        .select('ai_tone, ai_output_style')
+                        .eq('user_id', session.user.id)
+                        .single();
+                        
+                    if (data && !error) {
+                        userPrefs.tone = data.ai_tone || 'Professional';
+                        userPrefs.style = data.ai_output_style || 'Detailed';
+                    }
+                }
+            }
+        });
 
         // Auto-open chat and explain Practice Mode
         window.onload = function () {
@@ -289,7 +309,8 @@
                         message: message,
                         history: conversationHistory,
                         count: turnCount,
-                        scam_type: type
+                        scam_type: type,
+                        preferences: userPrefs
                     })
                 });
 

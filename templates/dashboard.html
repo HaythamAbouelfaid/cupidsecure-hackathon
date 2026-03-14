@@ -13,29 +13,84 @@
 </head>
 
 <body>
-    <header>
-        <div class="logo">
-            <a href="{{ url_for('index') }}">
-                <i class="fas fa-heart-crack"></i> CupidSecure
-            </a>
+    <!-- Auth Route Protection Overlay -->
+    <div id="authLoadingOverlay" style="position: fixed; inset: 0; background-color: #0d0107; z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s;">
+        <div style="color: #ec4899; font-size: 1.25rem; font-weight: bold; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">
+            Loading...
         </div>
-        <div class="mobile-menu-btn" onclick="toggleMobileMenu()">
-            <i class="fas fa-bars"></i>
-        </div>
-        <nav class="nav-links" id="navLinks">
-            <a href="{{ url_for('simulator') }}" class="nav-btn-highlight">Practice Mode</a>
-            <a href="#" onclick="loadDemo('1')" class="nav-btn-outline">Load Demo (Military)</a>
-            <a href="#" onclick="loadDemo('2')" class="nav-btn-outline">Load Demo (Crypto)</a>
-        </nav>
-        <div class="header-cta">
-            <span class="dashboard-badge">Risk Dashboard</span>
-        </div>
-    </header>
+    </div>
+    
+    <div style="display: flex; height: 100vh; width: 100vw; overflow: hidden; position: relative;">
+        <!-- Full Height Left Sidebar -->
+        <aside id="historySidebar" style="width: 280px; flex-shrink: 0; background: #090004; border-right: 1px solid var(--glass-border); display: none; flex-direction: column; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; overflow: hidden; height: 100vh;">
+            
+            <div style="padding: 1.5rem 1.5rem 1rem 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <a href="/" style="text-decoration: none; color: white; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-heart-crack" style="color: #ec4899;"></i>
+                        <span style="font-weight: bold; font-size: 1.2rem;">CupidSecure</span>
+                    </a>
+                    <button id="closeSidebarBtn" onclick="toggleSidebar()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                
+                <button onclick="newAnalysis()" class="btn-primary" style="width: 100%; margin-bottom: 1rem; padding: 0.75rem; font-size: 0.9rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="fas fa-edit"></i> New Analysis
+                </button>
 
-    <main class="container">
-        <div class="dashboard-grid">
-            <!-- Left Column: Inputs -->
-            <div class="input-section">
+                <!-- Search Bar -->
+                <div style="position: relative; margin-bottom: 0.5rem;">
+                    <i class="fas fa-search" style="position: absolute; left: 10px; top: 10px; color: var(--text-secondary); font-size: 0.85rem;"></i>
+                    <input type="text" id="historySearch" placeholder="Search analyses..." onkeyup="filterHistory()" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 0.5rem 0.5rem 0.5rem 2rem; color: white; font-size: 0.85rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#ec4899'" onblur="this.style.borderColor='var(--glass-border)'">
+                </div>
+            </div>
+
+            <div id="historyList" style="flex-grow: 1; overflow-y: auto; padding: 0 1.5rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Populated via JS -->
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div id="mainContentWrapper" style="flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; position: relative;">
+            <header style="border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 40; background: rgba(13, 1, 7, 0.8); backdrop-filter: blur(10px); display: flex; align-items: center; padding: 1rem 2rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="openSidebarBtn" onclick="toggleSidebar()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; display: none; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <!-- Small screen logo only -->
+                    <div class="logo mobile-only-logo" style="display: none;">
+                        <a href="/">
+                            <i class="fas fa-heart-crack"></i> CupidSecure
+                        </a>
+                    </div>
+                </div>
+                
+                <div style="flex-grow: 1;"></div> <!-- Spacer -->
+
+                <div class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+                <nav class="nav-links" id="navLinks" style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="/simulator" class="nav-btn-highlight">Practice Mode</a>
+                    <a href="#" onclick="loadDemo('1')" class="nav-btn-outline">Load Demo (Military)</a>
+                    <a href="#" onclick="loadDemo('2')" class="nav-btn-outline">Load Demo (Crypto)</a>
+                    <div class="header-cta" style="margin-left: 1rem;">
+                        <span class="dashboard-badge">Risk Dashboard</span>
+                    </div>
+                </nav>
+            </header>
+
+            <main class="container" style="max-width: 1400px; padding: 2rem; margin: 0 auto; width: 100%;">
+                <div class="dashboard-grid">
+                    <!-- Left Column: Inputs -->
+                    <div class="input-section">
+
+                <!-- Auth Banner -->
+                <div id="loggedOutBanner" style="display: none; background: rgba(236, 72, 153, 0.1); border: 1px solid var(--primary-color); padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; color: #fff;"><i class="fas fa-info-circle" style="color: var(--primary-color); margin-right: 0.5rem;"></i> Sign in to save and track your analyses.</span>
+                    <a href="/signin" class="btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; text-decoration: none;">Sign In</a>
+                </div>
 
                 <!-- Conversation Analyzer -->
                 <div class="glass-panel card">
@@ -355,7 +410,33 @@
             style="height: 50px; margin-bottom: 0.5rem; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 5px;">
         <p>Built at George Mason University 🎓 HackFax 2026</p>
     </footer>
-
+    </div> <!-- End Main Content Wrapper -->
+    </div> <!-- End Layout wrapper -->
+    <style>
+        @media (max-width: 768px) {
+            #historySidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+                display: flex !important;
+                margin-left: 0 !important;
+            }
+            #historySidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .mobile-only-logo {
+                display: block !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        window.SUPABASE_URL = '{{ supabase_url }}';
+        window.SUPABASE_ANON_KEY = '{{ supabase_anon_key }}';
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         window.onload = function () {
