@@ -32,21 +32,24 @@ export const AuthProvider = ({ children }) => {
             .from('profiles')
             .upsert({ 
               id: currentUser.id, 
-              email: currentUser.email,
               display_name: null,
               avatar_url: null,
-              created_at: new Date().toISOString()
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             }, { onConflict: 'id' });
           
           if (profileError) console.error("Error auto-creating profile:", profileError);
 
           // Insert preferences record
           const { error: prefsError } = await supabase
-            .from('preferences')
+            .from('user_preferences')
             .upsert({ 
-              user_id: currentUser.id, 
-              theme: 'dark' 
-            }, { onConflict: 'user_id' });
+              id: currentUser.id, 
+              ai_tone: 'professional',
+              ai_output_style: 'detailed',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
           
           if (prefsError) console.error("Error auto-creating preferences:", prefsError);
         } catch (err) {
