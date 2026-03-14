@@ -7,7 +7,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.99.1",
     "next": "15.0.3",
-    "react": "19.0.0-rc-6632edcf-20241028",
-    "react-dom": "19.0.0-rc-6632edcf-20241028"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   }
 }
